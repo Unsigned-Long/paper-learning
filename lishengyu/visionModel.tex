@@ -1,0 +1,210 @@
+\documentclass[12pt, twocolumn]{article}
+
+% 引入相关的包
+\usepackage{amsmath, listings, fontspec, geometry, graphicx, ctex, color, subfigure}
+
+% 设定页面的尺寸和比例
+\geometry{left = 1.5cm, right = 1.5cm, top = 1.5cm, bottom = 1.5cm}
+
+% 设定两栏之间的间距
+\setlength\columnsep{1cm}
+
+% 设定字体，为代码的插入作准备
+\newfontfamily\ubuntu{Ubuntu Mono}
+
+% 头部信息
+\title{\normf{这是标题}}
+\author{\normf{陈烁龙}}
+\date{\normf{\today}}
+
+% 代码块的风格设定
+\lstset{
+	language=C++,
+	basicstyle=\scriptsize\ubuntu,
+	keywordstyle=\textbf,
+	stringstyle=\itshape,
+	commentstyle=\itshape,
+	numberstyle=\scriptsize\ubuntu,
+	showstringspaces=false,
+	numbers=left,
+	numbersep=8pt,
+	tabsize=2,
+	frame=single,
+	framerule=1pt,
+	columns=fullflexible,
+	breaklines,
+	frame=shadowbox, 
+	backgroundcolor=\color[rgb]{0.97,0.97,0.97}
+}
+
+% 字体族的定义
+\newcommand{\normf}{\kaishu}
+\newcommand{\boldf}{\heiti}
+\newcommand\keywords[1]{\boldf{关键词：} \normf #1}
+
+\begin{document}
+	
+	% 插入头部信息
+	\maketitle
+	% 换页
+	\thispagestyle{empty}
+	\clearpage
+	
+	% 插入目录、图、表并换页
+	\tableofcontents
+	\listoffigures
+	\listoftables
+	\setcounter{page}{1}
+	% 罗马字母形式的页码
+	\pagenumbering{roman}
+	\clearpage
+	% 从该页开始计数
+	\setcounter{page}{1}
+	% 阿拉伯数字形式的页码
+	\pagenumbering{arabic}
+	
+	\section{\normf{双目相机测量模型}}
+	\normf
+	问题描述：
+	在某时刻，有两相机同时观测到某个世界坐标系下的特征点$p$，其在左相机$C_1$的归一化像素坐标为(测量值)：
+	\begin{equation*}
+		p^{C_1}=\begin{pmatrix}
+			u^{C_1}&v^{C_1}
+		\end{pmatrix}^T
+	\end{equation*}
+	其在右相机$C_2$的归一化像素坐标(测量值)为：
+	\begin{equation*}
+		p^{C_2}=\begin{pmatrix}
+			u^{C_2}&v^{C_2}
+		\end{pmatrix}^T
+	\end{equation*}
+	且已知两相机之间的位姿变换关系矩阵$R_{C_1}^{C_2}$和$r_{C_1}^{C_2}$、	相机1相对于e系的初始位姿变换关系矩阵$R_{C_1}^{e}$和$r_{C_1}^{e}$。设特征点$p$在两相机坐标系下的坐标为：
+	\begin{equation*}
+		\begin{aligned}
+			r^{C_1}=\begin{pmatrix}
+				X^{C_1}&Y^{C_1}&Z^{C_1}
+			\end{pmatrix}^T\\
+		r^{C_2}=\begin{pmatrix}
+			X^{C_2}&Y^{C_2}&Z^{C_2}
+		\end{pmatrix}^T
+		\end{aligned}
+	\end{equation*}
+	特征点$p$的初始e系坐标为：
+	\begin{equation*}
+		\begin{aligned}
+			r^e=\begin{pmatrix}
+				X^{e}&Y^{e}&Z^{e}
+			\end{pmatrix}
+		\end{aligned}
+	\end{equation*}
+那么，有如下的关系式：
+\begin{equation*}
+	\begin{aligned}
+			\begin{cases}
+			r^{e}=R_{C_1}^{e}r^{C_1}+r_{C_1}^e\\		r^{C_1}=R_{C_2}^{C_1}r^{C_2}+r_{C_2}^{C_1}	\end{cases}\\
+		\to\begin{cases}
+			r^{C_1}=[R_{C_1}^e]^T(r^e-r_{C_1}^e)\\	
+			r^{C_2}=R_{C_1}^{C_2}(r^{C_1}-r^{C_1}_{C_2})	\end{cases}
+	\end{aligned}
+\end{equation*}
+	定义如下的误差方程：
+	\begin{equation*}
+		\begin{pmatrix}
+			e^{C_1}\\e^{C_2}
+		\end{pmatrix}=
+		\begin{pmatrix}
+			e^{C_1}_u\\e^{C_1}_v\\e^{C_2}_u\\e^{C_2}_v
+		\end{pmatrix}=\begin{pmatrix}
+		\frac{X^{C_1}}{Z^{C_1}}\\\frac{Y^{C_1}}{Z^{C_1}}
+		\\\frac{X^{C_2}}{Z^{C_2}}\\\frac{Y^{C_2}}{Z^{C_2}}
+	\end{pmatrix}-
+		\begin{pmatrix}
+			u^{C_1}\\v^{C_1}\\u^{C_2}\\v^{C_2}
+		\end{pmatrix}+	\begin{pmatrix}
+		n^{C_1}_u\\n^{C_1}_v\\n^{C_2}_u\\n^{C_2}_v
+	\end{pmatrix}
+	\end{equation*}
+	我们的优化目标参数为$R_{C_1}^e$(用轴角$\theta_{C_1}^e$来表示)、$r_{C_1}^e$、$r^{e}$。所以，我们的雅克比矩阵为：
+	\begin{equation*}
+		J=\begin{pmatrix}
+			\frac{\partial e^{C_1}}{\partial\theta_{C_1}^e}&
+			\frac{\partial e^{C_1}}{\partial r_{C_1}^e}&
+			\frac{\partial e^{C_1}}{\partial r^{e}}\\
+			\frac{\partial e^{C_2}}{\partial\theta_{C_1}^e}&
+			\frac{\partial e^{C_2}}{\partial r_{C_1}^e}&
+			\frac{\partial e^{C_2}}{\partial r^{e}}
+		\end{pmatrix}_{4\times 9}
+	\end{equation*}
+	其中第一行的偏导数为：
+	\begin{equation*}
+		\begin{aligned}
+			\to\frac{\partial e^{C_1}}{\partial\theta_{C_1}^e}=&
+			\frac{\partial e^{C_1}}{\partial r^{C_1}}\cdot			\frac{\partial r^{C_1}}{\partial \theta_{C_1}^e}\\=&
+			\frac{1}{Z^{C_1}}\begin{pmatrix}
+				1&0&-\frac{X^{C_1}}{Z^{C_1}}\\
+				0&1&-\frac{Y^{C_1}}{Z^{C_1}}
+			\end{pmatrix}\cdot
+		(r^{C_1}\times)
+		\end{aligned}
+	\end{equation*}
+\begin{equation*}
+	\begin{aligned}
+		\to\frac{\partial e^{C_1}}{\partial r_{C_1}^e}=&
+		\frac{\partial e^{C_1}}{\partial r^{C_1}}\cdot			\frac{\partial r^{C_1}}{\partial r_{C_1}^e}\\=&
+		\frac{1}{Z^{C_1}}\begin{pmatrix}
+			1&0&-\frac{X^{C_1}}{Z^{C_1}}\\
+			0&1&-\frac{Y^{C_1}}{Z^{C_1}}
+		\end{pmatrix}\cdot
+		(-[R_{C_1}^e]^T)
+	\end{aligned}
+\end{equation*}
+\begin{equation*}
+	\begin{aligned}
+		\to\frac{\partial e^{C_1}}{\partial r^e}=&
+		\frac{\partial e^{C_1}}{\partial r^{C_1}}\cdot			\frac{\partial r^{C_1}}{\partial r^e}\\=&
+		\frac{1}{Z^{C_1}}\begin{pmatrix}
+			1&0&-\frac{X^{C_1}}{Z^{C_1}}\\
+			0&1&-\frac{Y^{C_1}}{Z^{C_1}}
+		\end{pmatrix}\cdot
+		[R_{C_1}^e]^T
+	\end{aligned}
+\end{equation*}
+	第二行的偏导数为：
+	\begin{equation*}
+		\begin{aligned}
+			\to\frac{\partial e^{C_2}}{\partial\theta_{C_1}^e}=&
+			\frac{\partial e^{C_2}}{\partial r^{C_2}}\cdot	
+			\frac{\partial r^{C_2}}{\partial  r^{C_1}}\cdot		\frac{\partial r^{C_1}}{\partial \theta_{C_1}^e}\\=&
+			\frac{1}{Z^{C_2}}\begin{pmatrix}
+				1&0&-\frac{X^{C_2}}{Z^{C_2}}\\
+				0&1&-\frac{Y^{C_2}}{Z^{C_2}}
+			\end{pmatrix}\cdot R_{C_1}^{C_2}\cdot
+			(r^{C_1}\times)
+		\end{aligned}
+	\end{equation*}
+	\begin{equation*}
+		\begin{aligned}
+			\to\frac{\partial e^{C_2}}{\partial r_{C_1}^e}=&
+			\frac{\partial e^{C_2}}{\partial r^{C_2}}\cdot	
+			\frac{\partial r^{C_2}}{\partial  r^{C_1}}\cdot		\frac{\partial r^{C_1}}{\partial r_{C_1}^e}\\=&
+			\frac{1}{Z^{C_2}}\begin{pmatrix}
+				1&0&-\frac{X^{C_2}}{Z^{C_2}}\\
+				0&1&-\frac{Y^{C_2}}{Z^{C_2}}
+			\end{pmatrix}\cdot R_{C_1}^{C_2}\cdot
+			(-[R_{C_1}^e]^T)
+		\end{aligned}
+	\end{equation*}
+	\begin{equation*}
+	\begin{aligned}
+		\to\frac{\partial e^{C_2}}{\partial r^e}=&
+		\frac{\partial e^{C_2}}{\partial r^{C_2}}\cdot	
+		\frac{\partial r^{C_2}}{\partial  r^{C_1}}\cdot		\frac{\partial r^{C_1}}{\partial r^e}\\=&
+		\frac{1}{Z^{C_2}}\begin{pmatrix}
+			1&0&-\frac{X^{C_2}}{Z^{C_2}}\\
+			0&1&-\frac{Y^{C_2}}{Z^{C_2}}
+		\end{pmatrix}\cdot R_{C_1}^{C_2}\cdot
+		[R_{C_1}^e]^T
+	\end{aligned}
+\end{equation*}
+\end{document}
+
