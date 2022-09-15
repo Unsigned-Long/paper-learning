@@ -69,7 +69,9 @@
 	
 	\section{\normf{前置知识}}
 	\subsection{\normf{贝塞尔曲线}}
-	贝塞尔曲线主要用于二维图形应用程序中的数学曲线，曲线由起始点，终止点（也称锚点）和控制点组成，通过调整控制点，通过一定方式绘制的贝塞尔曲线形状会发生变化(注意是整体曲线，这和后面的B样条曲线不同)。
+	贝塞尔曲线主要用于二维图形应用程序中的数学曲线，曲线由起始点，终止点（也称锚点）和控制点组成，通过调整控制点，通过一定方式绘制的贝塞尔曲线形状会发生变化\footnote{\normf{注意是整体曲线，这和后面的B样条曲线不同。}}。
+	
+	贝塞尔曲线的性质：曲线总是通过第一个点和最后一个点；第一个点的切线即为第一个点和第二个点的连线；最后一个点的切线即为最后一个点和倒数第二个点的连线。
 	
 	对于$n$次的贝塞尔曲线，其有$n+1$个控制点，曲线上点的位置由控制点和参数$t\in[0,1]$决定。其公式为：
 	\begin{equation*}
@@ -79,7 +81,7 @@
 	\begin{equation*}
 		C_{n}^{i}=\frac{n!}{(n-i)!\cdot i!}
 	\end{equation*}
-	例如，对于3阶的贝塞尔曲线，其公式为：
+	例如，对于3次的贝塞尔曲线，其公式为：
 	\begin{equation*}
 		\begin{aligned}
 			B_3(t)=&(1-t)^3P_0+3t(1-t)^2P_1\\&+3t^2(1-t)P_2+t^3P_3
@@ -118,25 +120,28 @@
 \end{figure}
 
 	\subsection{\normf{B样条曲线}}
-	B样条是通过一组指定点集而生成平滑曲线的柔性带。简单地说，B样条曲线就是通过控制点局部控制形状的曲线(注意是局部控制)。
+	B样条是通过一组指定点集而生成平滑曲线的柔性带。简单地说，B样条曲线就是通过控制点局部控制形状的曲线\footnote{\normf{注意是局部控制，因为其多项式的次数($k$)独立于控制点的数目($n+1$)，但是有一定的限制。}}。
 	
-	对于$m$阶$n$次B样条曲线($2\le n \le m+1$)，其有$m+1$个节点分布在$[0,1]$，即：$0\le t_0<\dots<t_m\le 1$。其公式为：
+	对于$k$次\footnote{\normf{阶数等于次数加1。}}的B样条曲线，其有$n+1$个控制点、$m+1=(n+k+1)+1$个节点，即：$t_0<\dots<t_m$。其公式为：
 	\begin{equation*}
-		B_m(t)=\sum_{i=0}^{m}P_i\cdot b_{i,n}(t)\quad t\in[0,1]
+		B_{n,k}(t)=\sum_{i=0}^{n}P_i\cdot b_{i,k}(t)\quad t\in[t_{k-1},t_{m-k+1}]
 	\end{equation*}
-	其中$b_{i,n}(t)$可以通过Cox-de Boor递归公式得到：
+	其中$b_{i,n}(t)$可以通过de Boor递归公式得到：
 	\begin{equation*}
 		\begin{aligned}
-			b_{i,n}&=\begin{cases}
-				1\quad t_i<t<t_{i+1}\\
+			b_{i,0}(t)&=\begin{cases}
+				1\quad t_i\le t\le t_{i+1}\\
 				0\quad\dots
 			\end{cases}\\
-		b_{i,n}&=\frac{t-t_i}{t_{i+n}-t_i}b_{i,n-1}(t)+\frac{t_{i+n+1}-t}{t_{i+n+1}-t_{i+1}}b_{i+1,n-1}(t)
+		b_{i,k}(t)&=\frac{t-t_i}{t_{i+k}-t_i}b_{i,k-1}(t)+\frac{t_{i+k+1}-t}{t_{i+k+1}-t_{i+1}}b_{i+1,k-1}(t)
 		\end{aligned}
 	\end{equation*}
-	当节点等距，称B样条为均匀。
-	
-	
+	当节点等距，称B样条为均匀。如果节点的重复度为$k+1$(即$t_0=\dots =t_k,t_{m-k}=\dots =t_m$)时，为准B样条均匀。
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.9\linewidth]{../img/bpline.png}
+		\caption{\normf{B样条曲线}}
+	\end{figure}
 	
 	
 	
