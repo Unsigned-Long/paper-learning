@@ -1,0 +1,9 @@
+/cmake-build-debug
+/.gitignore
+/docs/notes.synctex.gz
+/docs/notes.log
+/docs/notes.toc
+/docs/notes.lot
+/docs/notes.aux
+/docs/notes.lof
+/.idea
