@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import csv
 import numpy
 
-# resultFileName = '../output/bezier.txt'
-resultFileName = '../output/uniformBSpline.txt'
+resultFileName = '../output/bezier.txt'
+# resultFileName = '../output/uniformBSpline.txt'
 
 ControlPointsFileName = '../output/controlPoints.txt'
 
@@ -30,12 +30,12 @@ with open(ControlPointsFileName, 'r') as file:
         cx.append(float(line[0]))
         cy.append(float(line[1]))
 
-plt.plot(x, y, label='bezier points', c='r', alpha=0.75, marker='o', ms=4)
+plt.plot(x, y, label='B-spline points', c='r', alpha=0.75, marker='o', ms=4)
 plt.scatter(cx, cy, label='control points', c='g', alpha=0.75, marker='X', s=60)
 
 plt.grid(ls='--', alpha=0.5)
 plt.legend()
 
-plt.title('Bezier Spline')
+plt.title('Bezier Curve')
 
 plt.show()
