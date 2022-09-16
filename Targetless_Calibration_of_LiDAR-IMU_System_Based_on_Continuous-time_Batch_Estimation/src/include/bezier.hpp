@@ -11,9 +11,9 @@
 namespace ns_spline {
     struct Bezier {
     public:
-        static ns_geo::PointSet2f solve(const ns_geo::PointSet2f &controlPoints, std::size_t num) {
-            float t = 0.0, delta = 1.0 / (num - 1);
-            ns_geo::PointSet2f result(num);
+        static ns_geo::PointSet2d solve(const ns_geo::PointSet2d &controlPoints, std::size_t num) {
+            double t = 0.0, delta = 1.0 / (num - 1);
+            ns_geo::PointSet2d result(num);
 
             for (int i = 0; i < num; ++i, t += delta) {
                 result[i] = bezier(t, controlPoints, 0, controlPoints.size());
@@ -22,7 +22,7 @@ namespace ns_spline {
         }
 
     protected:
-        static ns_geo::Point2f bezier(float t, const ns_geo::PointSet2f &controlPoints,
+        static ns_geo::Point2d bezier(double t, const ns_geo::PointSet2d &controlPoints,
                                       std::size_t beg, std::size_t end) {
             if (end - beg == 1) {
                 return controlPoints[beg];
@@ -33,7 +33,7 @@ namespace ns_spline {
             auto p2 = bezier(t, controlPoints, beg + 1, end);
             p2.x *= t;
             p2.y *= t;
-            return ns_geo::Point2f(p1.x + p2.x, p1.y + p2.y);
+            return {p1.x + p2.x, p1.y + p2.y};
         }
     };
 }

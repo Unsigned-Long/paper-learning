@@ -4,7 +4,7 @@
 #include "bezier.hpp"
 #include "bspline.hpp"
 
-const ns_geo::PointSet2f controlsPoints{
+const ns_geo::PointSet2d controlsPoints{
         {0, 0},
         {1, 2},
         {2, 0},
