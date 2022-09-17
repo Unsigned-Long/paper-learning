@@ -1,0 +1,133 @@
+\documentclass[12pt, twocolumn]{article}
+
+% 引入相关的包
+\usepackage{amsmath, listings, fontspec, geometry, graphicx, ctex, color, subfigure}
+
+% 设定页面的尺寸和比例
+\geometry{left = 1.5cm, right = 1.5cm, top = 1.5cm, bottom = 1.5cm}
+
+% 设定两栏之间的间距
+\setlength\columnsep{1cm}
+
+% 设定字体，为代码的插入作准备
+\newfontfamily\ubuntu{Ubuntu Mono}
+
+% 头部信息
+\title{\normf{这是标题}}
+\author{\normf{陈烁龙}}
+\date{\normf{\today}}
+
+% 代码块的风格设定
+\lstset{
+	language=C++,
+	basicstyle=\scriptsize\ubuntu,
+	keywordstyle=\textbf,
+	stringstyle=\itshape,
+	commentstyle=\itshape,
+	numberstyle=\scriptsize\ubuntu,
+	showstringspaces=false,
+	numbers=left,
+	numbersep=8pt,
+	tabsize=2,
+	frame=single,
+	framerule=1pt,
+	columns=fullflexible,
+	breaklines,
+	frame=shadowbox, 
+	backgroundcolor=\color[rgb]{0.97,0.97,0.97}
+}
+
+% 字体族的定义
+\newcommand{\normf}{\kaishu}
+\newcommand{\boldf}{\heiti}
+\newcommand\keywords[1]{\boldf{关键词：} \normf #1}
+\newcommand{\lieal[1]}{\left\lfloor #1 \right\rfloor_\times}
+
+\begin{document}
+	
+	% 插入头部信息
+	\maketitle
+	% 换页
+	\thispagestyle{empty}
+	\clearpage
+	
+	% 插入目录、图、表并换页
+	\tableofcontents
+	\listoffigures
+	\listoftables
+	\setcounter{page}{1}
+	% 罗马字母形式的页码
+	\pagenumbering{roman}
+	\clearpage
+	% 从该页开始计数
+	\setcounter{page}{1}
+	% 阿拉伯数字形式的页码
+	\pagenumbering{arabic}
+	
+	\section{\normf{概述}}
+	\normf
+	对于激光里程计而言，帧间匹配对于位姿估计是比较重要的。一般的帧间匹配有点到点的、点到线的、点到面的(三维空间)。其基本的步骤都是需要先进行数据关联，而后构建损失函数进行优化。而本次论文里的NDT方法，不需要进行数据关联，其通过将点云格网化，并建立对应的正太分布模型，在进行帧间位姿估计。
+	
+	\section{\normf{论文算法}}
+	本次主要记录三维空间的NDT(论文里是二维的)。
+	
+	首先，对于拿到的第一帧点云，我们将其划分成小的规则格网(正方体)。然后对其里面的点$p_i,\quad i\in[0,n-1]$进行相关统计，得到其正太发布模型：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+				\bar{\boldsymbol{p}}&=\frac{1}{n}\sum_{i=0}^{n-1}{^{L_1}\boldsymbol{p}_i}\\
+				\boldsymbol{\Sigma}&=\frac{1}{n}\sum_{i=0}^{n-1}(^{L_1}\boldsymbol{p}_i-\bar{\boldsymbol{p}})(^{L_1}\boldsymbol{p}_i-\bar{\boldsymbol{p}})^T
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	那么，在这一个格网内的任意点，都可以计算得到其概率密度：
+	\begin{equation*}
+		\boldsymbol{P}(\boldsymbol{p})=\exp\left(-\frac{\left(\boldsymbol{p}-\bar{\boldsymbol{p}}\right)^T\boldsymbol{\Sigma}^{-1}\left(\boldsymbol{p}-\bar{\boldsymbol{p}}\right)}{2}\right)
+	\end{equation*}
+	当然，为了减轻离散化效应，我们可以让划分的格网有重叠。比如，对于规定边长为$l$的正方体，在其右方错开$\frac{l}{2}$的地方放一个正方体，在其前方错开$\frac{l}{2}$的地方放一个正方体，在其前右方错开$\frac{l}{2}$的地方放一个正方体，然后此结构在往上方$\frac{l}{2}$的地方再放这样的一个结构。那么对于中心小格网的点，其落入了8个规则格网中，计算的时候，其概率就为8个规则格网计算得到的概率的和。
+	
+	通过上文的处理，我们进行对第一帧点云进行了建模。当第二帧到来的时候，我们通过一个两帧之间的位姿初值，将第二帧的点云里的每一个点${^{L_2}\boldsymbol{p}_j}$变换到第一帧坐标系中，得到${^{L_1}\boldsymbol{p}_j}$，然后计算每一个点的概率$\boldsymbol{P}({^{L_1}\boldsymbol{p}_j})$，然后求和，得到总的分数$s$。让这个分数最大即可以优化位姿$^{L_1}_{L_2}\boldsymbol{R}$、$^{L_1}\boldsymbol{t}_{L_2}$：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+					s_j&=\exp\left( -\frac{\left({^{L_1}\boldsymbol{p}_j}-\bar{\boldsymbol{p}}\right)^T\boldsymbol{\Sigma}^{-1}\left({^{L_1}\boldsymbol{p}_j}-\bar{\boldsymbol{p}}\right)}{2} \right)\\
+					{^{L_1}\boldsymbol{p}_j}&={^{L_1}_{L_2}\boldsymbol{R}}{^{L_2}\boldsymbol{p}_j}+{^{L_1}\boldsymbol{t}_{L_2}}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	通过利用高斯-牛顿发可以优化求解位姿。首先我们的损失函数为：
+	\begin{equation*}
+		f(\boldsymbol{x})_j=\frac{1}{s_j}
+	\end{equation*}
+	
+	求解雅克比矩阵(姿态处求导采用右扰动)：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+				&\begin{aligned}
+					\frac{\partial f(\boldsymbol{x})_j}{\partial {^{L_1}\boldsymbol{p}_j}}=&\frac{\partial f(\boldsymbol{x})}{\partial s_j}\times\frac{\partial s_j}{\partial {^{L_1}\boldsymbol{p}_j}}\\
+					=&s_j^{-1}			\times\left({^{L_1}\boldsymbol{p}_j}-\bar{\boldsymbol{p}}\right)^T\boldsymbol{\Sigma}^{-1}
+				\end{aligned}\\
+				&\begin{aligned}
+					\frac{\partial {^{L_1}\boldsymbol{p}_j}}{\partial \delta {^{L_1}_{L_2}\boldsymbol{\theta}} }&=-{^{L_1}_{L_2}\boldsymbol{R}}\lieal[{^{L_2}\boldsymbol{p}_j}]\\
+					\frac{\partial {^{L_1}\boldsymbol{p}_j}}{\partial {^{L_1}\boldsymbol{t}_{L_2}} }&=I
+				\end{aligned}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	而后求解：
+	\begin{equation*}
+			\begin{cases}
+			\begin{aligned}
+				\boldsymbol{J_j}&=\left(\frac{\partial f(\boldsymbol{x})_j}{\partial {^{L_1}\boldsymbol{p}_j}}\right)\begin{pmatrix}
+					-{^{L_1}_{L_2}\boldsymbol{R}}\lieal[{^{L_2}\boldsymbol{p}_j}]&\boldsymbol{I}
+				\end{pmatrix}\\
+				\boldsymbol{H}&=\sum_{j=0}^{m-1}\boldsymbol{J_j}^T\boldsymbol{J_j}\\
+				\boldsymbol{g}&=-{j=0}^{m-1}\boldsymbol{J_j}f(\boldsymbol{x})_j\\
+				\boldsymbol{H}\Delta \boldsymbol{x}&=g \quad \boldsymbol{x}=\boldsymbol{x}+\Delta\boldsymbol{x}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	需要注意的是，由于姿态求解我们使用了右扰动，所以姿态更新时，要右乘更新量。
+\end{document}
+
