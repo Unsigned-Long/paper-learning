@@ -200,6 +200,14 @@
 \end{equation*}
 \begin{equation*}
 	\begin{aligned}
+		\frac{^{\boldsymbol{I}}\partial \boldsymbol{R}^{-1}\boldsymbol{Q}}{\partial \delta\boldsymbol{\theta}}&=\frac{(\exp(\lieal[\delta\boldsymbol{\theta}])\boldsymbol{R})^{-1}\boldsymbol{Q}\ominus\boldsymbol{R}^{-1}\boldsymbol{Q}}{\delta\boldsymbol{\theta}}
+		\\&=\frac{\mathrm{Log}(\boldsymbol{R}^{-1}\exp(-\lieal[\delta\boldsymbol{\theta}])\boldsymbol{Q}\boldsymbol{Q}^{-1}\boldsymbol{R})}{\delta\boldsymbol{\theta}}
+		\\&=\frac{\mathrm{Log}(\exp(\boldsymbol{R}^{-1}\lieal[-\delta\boldsymbol{\theta}]\boldsymbol{R}))}{\delta\boldsymbol{\theta}}
+		\\&=\frac{(\boldsymbol{R}^{-1}\lieal[-\delta\boldsymbol{\theta}]\boldsymbol{R})^{\vee}}{\delta\boldsymbol{\theta}}=-\boldsymbol{R}^{-1}
+	\end{aligned}
+\end{equation*}
+\begin{equation*}
+	\begin{aligned}
 		\frac{^{\boldsymbol{I}}\partial \boldsymbol{QR}}{\partial \delta\boldsymbol{\theta}}&=\frac{\boldsymbol{Q}\exp(\lieal[\delta\boldsymbol{\theta}])\boldsymbol{R}\ominus\boldsymbol{QR}}{\delta\boldsymbol{\theta}}
 		\\&=\frac{\mathrm{Log}(\boldsymbol{Q}\exp(\lieal[\delta\boldsymbol{\theta}])\boldsymbol{R}\boldsymbol{R}^{-1}\boldsymbol{Q}^{-1})}{\delta\boldsymbol{\theta}}
 		\\&=\frac{\mathrm{Log}(\boldsymbol{Q}\exp(\lieal[\delta\boldsymbol{\theta}])\boldsymbol{Q}^{-1})}{\delta\boldsymbol{\theta}}
@@ -250,6 +258,15 @@
 		\\&=\frac{\mathrm{Log}(\exp(\boldsymbol{Q}^{-1}\lieal[\delta\boldsymbol{\theta}]\boldsymbol{Q})}{\delta\boldsymbol{\theta}}
 		\\&=\frac{\mathrm{Log}(\mathrm{Exp}((\boldsymbol{Q}^{-1}\lieal[\delta\boldsymbol{\theta}]\boldsymbol{Q})^{\vee}))}{\delta\boldsymbol{\theta}}
 		\\&=\frac{(\boldsymbol{Q}^{-1}\lieal[\delta\boldsymbol{\theta}]\boldsymbol{Q})^{\vee}}{\delta\boldsymbol{\theta}}=\boldsymbol{Q}^{-1}
+	\end{aligned}
+\end{equation*}
+\begin{equation*}
+	\begin{aligned}
+		\frac{^{\boldsymbol{I}}\partial \boldsymbol{R}^{-1}\boldsymbol{Q}}{\partial \delta\boldsymbol{\theta}}&=\frac{(\boldsymbol{R}\exp(\lieal[\delta\boldsymbol{\theta}]))^{-1}\boldsymbol{Q}\ominus\boldsymbol{R}^{-1}\boldsymbol{Q}}{\delta\boldsymbol{\theta}}
+		\\&=\frac{\mathrm{Log}(\boldsymbol{Q}^{-1}\boldsymbol{R}\exp(-\lieal[\delta\boldsymbol{\theta}])\boldsymbol{R}^{-1}\boldsymbol{Q})}{\delta\boldsymbol{\theta}}
+		\\&=\frac{\mathrm{Log}(\exp(-\boldsymbol{Q}^{-1}\boldsymbol{R}\lieal[\delta\boldsymbol{\theta}]\boldsymbol{R}^{-1}\boldsymbol{Q}))}{\delta\boldsymbol{\theta}}
+		\\&=\frac{(-\boldsymbol{Q}^{-1}\boldsymbol{R}\lieal[\delta\boldsymbol{\theta}]\boldsymbol{R}^{-1}\boldsymbol{Q})^{\vee}}{\delta\boldsymbol{\theta}}
+		\\&=\frac{-\boldsymbol{Q}^{-1}\boldsymbol{R}\delta\boldsymbol{\theta}}{\delta\boldsymbol{\theta}}=-\boldsymbol{Q}^{-1}\boldsymbol{R}
 	\end{aligned}
 \end{equation*}
 \begin{equation*}
