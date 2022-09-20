@@ -6,69 +6,92 @@
 #define ALG_SIM_SENSOR_H
 
 #include <ostream>
+#include <utils/enum_cast.hpp>
 #include "opencv2/core.hpp"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
 #include "eigen3/Eigen/Core"
 
 namespace ns_calib {
-    template<class ScanType>
+    template<class FrameDataType>
     class Observation {
     public:
-        using Scan = ScanType;
-        using ScanPtr = std::shared_ptr<Scan>;
+        using FrameData = FrameDataType;
+        using FrameDataPtr = std::shared_ptr<FrameData>;
 
     public:
         double timeStamp;
-        ScanPtr scan;
+        FrameDataPtr frameData;
 
     public:
-        explicit Observation(double timeStamp, ScanPtr scan)
-                : timeStamp(timeStamp), scan(scan) {}
+        explicit Observation(double timeStamp, FrameDataPtr frameDataPtr)
+                : timeStamp(timeStamp), frameData(frameDataPtr) {}
     };
 
-    template<class ObservationType, class ParameterType>
+    enum class SensorType {
+        CAMERA_PINHOLE = 0, LiDAR_3D = 1, IMU_MEMS = 2
+    };
+
+    template<class FrameDataType, class ParameterType>
     class Sensor {
     public:
-        using ObvTypePtr = std::shared_ptr<ObservationType>;
-        using ParamTypePtr = std::shared_ptr<ParameterType>;
+        using Obv = Observation<FrameDataType>;
+        using ObvPtr = std::shared_ptr<Obv>;
 
-        using ObvType = ObservationType;
-        using ParamType = ParameterType;
+        using FrameData = typename Obv::FrameData;
+        using FrameDataPtr = typename Obv::FrameDataPtr;
+
+        using Param = ParameterType;
+        using ParamPtr = std::shared_ptr<Param>;
 
         using Ptr = std::shared_ptr<Sensor>;
 
     public:
-        explicit Sensor() = default;
+        explicit Sensor(Param param) : param(param) {}
+
+        /**
+         * the type of this sensor
+         */
+        [[nodiscard]] virtual SensorType type() const = 0;
+
+        friend std::ostream &operator<<(std::ostream &os, const Sensor &sensor) {
+            os << "type: " << EnumCast::enumToString(sensor.type()) << ", param: " << sensor.param;
+            return os;
+        }
 
     public:
-        ParamTypePtr param;
+        Param param;
     };
 
     /**
      * LiDAR Sensor define
      */
-
     struct LiDARParameter {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        unsigned short rate{};
+        unsigned short frameRate{};
         unsigned short ringCount{};
         double noise{};
+
+        float HorizontalFOV{};
+        float verticalFOV{};
+        float maxDistance{};
     };
 
-    class LiDAR : public Sensor<Observation<pcl::PointCloud<pcl::PointXYZI>>, LiDARParameter> {
+    class LiDAR : public Sensor<pcl::PointCloud<pcl::PointXYZI>, LiDARParameter> {
     public:
         using Ptr = std::shared_ptr<LiDAR>;
 
     public:
-        LiDAR();
+        explicit LiDAR(const Param &param) : Sensor(param) {}
+
+        [[nodiscard]] SensorType type() const override;
     };
 
     /**
      * IMU Sensor define
      */
-    struct IMUScan {
+    struct IMUFrameData {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         Eigen::Vector3d acce{};
@@ -86,16 +109,17 @@ namespace ns_calib {
             Eigen::Vector3d bias{};
             double noiseDensity{};
         } gyro{};
-        unsigned short rate{};
+        unsigned short frameRate{};
     };
 
-    class IMU : public Sensor<Observation<IMUScan>, IMUParameter> {
+    class IMU : public Sensor<IMUFrameData, IMUParameter> {
     public:
         using Ptr = std::shared_ptr<IMU>;
 
     public:
-        IMU();
+        explicit IMU(const Param &param) : Sensor(param) {}
 
+        [[nodiscard]] SensorType type() const override;
     };
 
     /**
@@ -104,7 +128,7 @@ namespace ns_calib {
     struct PinholeCameraParameter {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        unsigned short rate{};
+        unsigned short frameRate{};
         Eigen::Matrix3d intrinsicsMat{};
         struct {
             Eigen::Vector3d radial{};
@@ -112,13 +136,14 @@ namespace ns_calib {
         } distortion{};
     };
 
-    class MonoPinholeCamera : public Sensor<Observation<cv::Mat>, PinholeCameraParameter> {
+    class MonoPinholeCamera : public Sensor<cv::Mat, PinholeCameraParameter> {
     public:
         using Ptr = std::shared_ptr<MonoPinholeCamera>;
 
     public:
-        MonoPinholeCamera();
+        explicit MonoPinholeCamera(const Param &param) : Sensor(param) {}
 
+        [[nodiscard]] SensorType type() const override;
     };
 }
 

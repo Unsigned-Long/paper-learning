@@ -6,9 +6,18 @@
 
 namespace ns_calib {
 
-    LiDAR::LiDAR() = default;
+    SensorType LiDAR::type() const {
+        return SensorType::LiDAR_3D;
+    }
 
-    IMU::IMU() = default;
 
-    MonoPinholeCamera::MonoPinholeCamera() = default;
+    SensorType IMU::type() const {
+        return SensorType::IMU_MEMS;
+    }
+
+
+    SensorType MonoPinholeCamera::type() const {
+        return SensorType::CAMERA_PINHOLE;
+    }
+
 }
