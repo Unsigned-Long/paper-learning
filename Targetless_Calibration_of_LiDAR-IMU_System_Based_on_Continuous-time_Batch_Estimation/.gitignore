@@ -8,3 +8,5 @@
 /docs/notes.lof
 /.idea
 /lidar_IMU_calib/
+/log
+/.vscode
