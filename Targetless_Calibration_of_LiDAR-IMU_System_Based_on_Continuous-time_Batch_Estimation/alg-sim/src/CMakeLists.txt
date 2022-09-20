@@ -3,7 +3,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 find_package(magic_enum CONFIG REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Eigen3)
+find_package(Eigen3 REQUIRED)
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src SRC_FILES)
 

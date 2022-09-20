@@ -1,6 +1,7 @@
 #include "calib.h"
 #include "odometer.h"
 #include "sensor.h"
+#include "imu_bspline.h"
 
 int main(int argc, char **argv) {
     try {
