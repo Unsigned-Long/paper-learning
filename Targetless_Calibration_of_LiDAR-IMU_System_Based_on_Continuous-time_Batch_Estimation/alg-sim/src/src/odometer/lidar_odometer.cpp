@@ -53,14 +53,8 @@ namespace ns_calib {
         Eigen::Matrix4d pose_frame_to_map = ndt->getFinalTransformation().cast<double>();
         this->poseVec_frame_to_map.emplace_back(Pose::fromT(pose_frame_to_map));
 
-        LOG_VAR(pose_frame_to_map);
-        LOG_VAR(filteredInputCloud->front(), alignedCloud->front());
-
         if (updateMap) {
-            pcl::PointCloud<Point>::Ptr scan_in_target(new pcl::PointCloud<Point>());
-            pcl::transformPointCloud(*filteredInputCloud, *scan_in_target, pose_frame_to_map);
-            *(this->map->frameData) += *(scan_in_target);
-            this->map->frameData = filteredInputCloud;
+            *this->map->frameData += *alignedCloud;
         }
 
 
