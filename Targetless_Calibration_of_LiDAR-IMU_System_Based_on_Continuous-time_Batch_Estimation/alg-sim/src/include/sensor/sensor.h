@@ -6,7 +6,7 @@
 #define ALG_SIM_SENSOR_H
 
 #include <ostream>
-#include <utils/enum_cast.hpp>
+#include "utils/enum_cast.hpp"
 #include "opencv2/core.hpp"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"

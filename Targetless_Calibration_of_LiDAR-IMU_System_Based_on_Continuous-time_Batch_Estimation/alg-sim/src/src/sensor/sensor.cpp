@@ -2,7 +2,7 @@
 // Created by csl on 9/20/22.
 //
 
-#include "sensor.h"
+#include "sensor/sensor.h"
 
 namespace ns_calib {
 
