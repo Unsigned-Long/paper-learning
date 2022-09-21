@@ -5,7 +5,7 @@
 #ifndef ALG_SIM_IMU_BSPLINE_H
 #define ALG_SIM_IMU_BSPLINE_H
 
-#include "odometer.h"
+#include "odometer/odometer.h"
 
 namespace ns_calib {
     class IMUBSpline : public Odometer<IMU> {
@@ -15,7 +15,7 @@ namespace ns_calib {
     public:
         explicit IMUBSpline(const IMU &imu);
 
-        bool feedObservation(IMU::ObvPtr obv) override;
+        bool feedObservation(IMU::ObvPtr obv);
 
         bool computeBSpline();
 

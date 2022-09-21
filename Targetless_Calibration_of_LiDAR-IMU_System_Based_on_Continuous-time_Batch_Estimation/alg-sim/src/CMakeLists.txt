@@ -4,10 +4,14 @@ find_package(magic_enum CONFIG REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(Ceres REQUIRED)
+find_package(Sophus REQUIRED)
 
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/odometer ODOMETER_SRC_FILES)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/sensor SENSOR_SRC_FILES)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src SRC_FILES)
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_FILES})
+add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_FILES} ${ODOMETER_SRC_FILES} ${SENSOR_SRC_FILES})
 
 target_include_directories(
         ${CMAKE_PROJECT_NAME} PUBLIC
@@ -15,6 +19,8 @@ target_include_directories(
         ${PCL_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${EIGEN_INCLUDE_DIRS}
+        ${CERES_INCLUDE_DIRS}
+        ${SOPHUS_INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -22,6 +28,8 @@ target_link_libraries(
         magic_enum::magic_enum
         ${PCL_LIBRARIES}
         ${OpenCV_LIBS}
+        ${CERES_LIBRARIES}
+        Sophus::Sophus
 )
 
 add_executable(${CMAKE_PROJECT_NAME}_proj ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
