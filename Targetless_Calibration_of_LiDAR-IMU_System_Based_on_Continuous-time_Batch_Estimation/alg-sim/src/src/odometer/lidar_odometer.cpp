@@ -4,6 +4,7 @@
 
 #include "odometer/lidar_odometer.h"
 #include "sensor/sensor.h"
+#include "artwork/logger/logger.h"
 
 namespace ns_calib {
 
@@ -20,14 +21,17 @@ namespace ns_calib {
     }
 
     bool LiDAROdometer::feedObservation(const Sensor::ObvPtr &obv,
-                                        const Pose &initPose_cur_to_map,
+                                        const Pose &posePred_cur_to_last,
                                         bool updateMap) {
         this->rawObvVec.push_back(obv);
 
+
         if (!this->initialized) {
             this->map = obv;
+            this->poseVec_frame_to_map.emplace_back(Pose());
             this->initAVGFilter();
             this->initNDT();
+            initialized = true;
             return true;
         }
 
@@ -40,18 +44,25 @@ namespace ns_calib {
 
         // Calculating required rigid transform to align the input cloud to the target cloud.
         pcl::PointCloud<Point>::Ptr alignedCloud(new pcl::PointCloud<Point>);
-        ndt->align(*alignedCloud, initPose_cur_to_map.T().cast<float>());
-
-        Eigen::Matrix4d pose_frame_map = ndt->getFinalTransformation().cast<double>();
-
-        this->poseVec_frame_to_map.emplace_back(
-                Pose::Rotation(pose_frame_map.block<3, 3>(0, 0)),
-                Pose::Translation(pose_frame_map.block<3, 1>(0, 3))
+        ndt->align(
+                *alignedCloud,
+                this->poseVec_frame_to_map.back().T().cast<float>() *
+                posePred_cur_to_last.T().cast<float>()
         );
 
+        Eigen::Matrix4d pose_frame_to_map = ndt->getFinalTransformation().cast<double>();
+        this->poseVec_frame_to_map.emplace_back(Pose::fromT(pose_frame_to_map));
+
+        LOG_VAR(pose_frame_to_map);
+        LOG_VAR(filteredInputCloud->front(), alignedCloud->front());
+
         if (updateMap) {
-            *(this->map->frameData) += *(alignedCloud);
+            pcl::PointCloud<Point>::Ptr scan_in_target(new pcl::PointCloud<Point>());
+            pcl::transformPointCloud(*filteredInputCloud, *scan_in_target, pose_frame_to_map);
+            *(this->map->frameData) += *(scan_in_target);
+            this->map->frameData = filteredInputCloud;
         }
+
 
         return true;
     }
@@ -79,6 +90,10 @@ namespace ns_calib {
         ndt->setResolution(Config::LiDAROdometer::NDT::RESOLUTION);
         // Setting max number of registration iterations.
         ndt->setMaximumIterations(Config::LiDAROdometer::NDT::MAX_ITERATIONS);
+    }
+
+    const LiDAROdometer::ObvPtr &LiDAROdometer::getMap() const {
+        return map;
     }
 
 }

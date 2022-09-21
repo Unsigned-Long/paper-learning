@@ -3,16 +3,38 @@
 //
 
 #include "config.h"
+#include "yaml-cpp/yaml.h"
 
 namespace ns_calib {
-    Eigen::Vector3f Config::LiDAROdometer::AVGFilter::LEAF_SIZE = Eigen::Vector3f(0.2f, 0.2f, 0.3f);
+    /*
+     * fields
+     */
+    Eigen::Vector3f Config::LiDAROdometer::AVGFilter::LEAF_SIZE = {};
 
-    double Config::LiDAROdometer::NDT::TRANS_EPSILON = 0.01;
-    double Config::LiDAROdometer::NDT::STEP_SIZE = 0.1;
-    float Config::LiDAROdometer::NDT::RESOLUTION = 1.0f;
-    int Config::LiDAROdometer::NDT::MAX_ITERATIONS = 35;
+    double Config::LiDAROdometer::NDT::TRANS_EPSILON = {};
+    double Config::LiDAROdometer::NDT::STEP_SIZE = {};
+    float Config::LiDAROdometer::NDT::RESOLUTION = {};
+    int Config::LiDAROdometer::NDT::MAX_ITERATIONS = {};
 
-    bool Config::initConfig() {
+    bool Config::initConfig(const std::string &configFilePath) {
+        auto config = YAML::LoadFile(configFilePath);
+        if (!config["LiDAROdometer"]) {
+            return false;
+        }
+        auto lidarOdometer = config["LiDAROdometer"];
+
+        auto NDT = lidarOdometer["NDT"];
+        LiDAROdometer::NDT::TRANS_EPSILON = NDT["TRANS_EPSILON"].as<double>();
+        LiDAROdometer::NDT::STEP_SIZE = NDT["STEP_SIZE"].as<double>();
+        LiDAROdometer::NDT::RESOLUTION = NDT["RESOLUTION"].as<float>();
+        LiDAROdometer::NDT::MAX_ITERATIONS = NDT["MAX_ITERATIONS"].as<int>();
+
+        auto AVGFilter = lidarOdometer["AVGFilter"];
+        auto leafSize = AVGFilter["LEAF_SIZE"];
+        LiDAROdometer::AVGFilter::LEAF_SIZE(0) = leafSize[0].as<float>();
+        LiDAROdometer::AVGFilter::LEAF_SIZE(1) = leafSize[1].as<float>();
+        LiDAROdometer::AVGFilter::LEAF_SIZE(2) = leafSize[2].as<float>();
+
         return true;
     }
 }

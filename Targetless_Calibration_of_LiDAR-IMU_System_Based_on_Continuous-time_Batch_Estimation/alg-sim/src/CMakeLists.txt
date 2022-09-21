@@ -6,6 +6,7 @@ find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(Sophus REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/odometer ODOMETER_SRC_FILES)
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src/sensor SENSOR_SRC_FILES)
@@ -21,6 +22,7 @@ target_include_directories(
         ${EIGEN_INCLUDE_DIRS}
         ${CERES_INCLUDE_DIRS}
         ${SOPHUS_INCLUDE_DIRS}
+        ${YAML_CPP_INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -30,6 +32,7 @@ target_link_libraries(
         ${OpenCV_LIBS}
         ${CERES_LIBRARIES}
         Sophus::Sophus
+        ${YAML_CPP_LIBRARIES}
 )
 
 add_executable(${CMAKE_PROJECT_NAME}_proj ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)

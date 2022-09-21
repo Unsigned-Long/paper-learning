@@ -1,0 +1,13 @@
+LiDAROdometer:
+  NDT:
+    # minimum transformation difference for termination condition
+    TRANS_EPSILON: 0.001
+    # maximum step size for More-Thuente line search
+    STEP_SIZE: 0.01
+    # Resolution of NDT grid structure (VoxelGridCovariance)
+    RESOLUTION: 0.5
+    # max number of registration iterations
+    MAX_ITERATIONS: 50
+  AVGFilter:
+    # Approximate Voxel Grid leaf size
+    LEAF_SIZE: [0.2, 0.2, 0.2]

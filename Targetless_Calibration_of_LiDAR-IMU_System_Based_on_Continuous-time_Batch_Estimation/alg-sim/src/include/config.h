@@ -14,19 +14,24 @@ namespace ns_calib {
 
         struct LiDAROdometer {
             struct NDT {
+                // minimum transformation difference for termination condition
                 static double TRANS_EPSILON;
+                // maximum step size for More-Thuente line search
                 static double STEP_SIZE;
+                // Resolution of NDT grid structure (VoxelGridCovariance)
                 static float RESOLUTION;
+                // max number of registration iterations
                 static int MAX_ITERATIONS;
 
             };
             struct AVGFilter {
+                // Approximate Voxel Grid leaf size
                 static Eigen::Vector3f LEAF_SIZE;
             };
         };
 
     public:
-        static bool initConfig();
+        static bool initConfig(const std::string& configFilePath);
     };
 }
 

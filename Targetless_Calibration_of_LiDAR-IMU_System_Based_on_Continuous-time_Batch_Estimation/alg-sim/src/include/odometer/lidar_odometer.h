@@ -36,6 +36,8 @@ namespace ns_calib {
 
         bool initialized;
 
+        ObvPtr lastFrame;
+
         // filtering input scan to increase speed of registration
         pcl::ApproximateVoxelGrid<Point>::Ptr filter;
         // Normal Distributions Transform
@@ -46,7 +48,9 @@ namespace ns_calib {
 
         static Ptr create(const Sensor &sensor);
 
-        bool feedObservation(const ObvPtr &obv, const Pose &initPose_cur_to_map, bool updateMap = true);
+        bool feedObservation(const ObvPtr &obv, const Pose &posePred_cur_to_last = Pose(), bool updateMap = true);
+
+        [[nodiscard]] const ObvPtr &getMap() const;
 
     protected:
         void initAVGFilter();
