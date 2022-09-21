@@ -20,7 +20,7 @@ namespace ns_calib {
         status = refinement();
         checkSolveStatus(status);
 
-        status = Status(Status::Flag::OK, "solve successfully.");
+        status = Status(Status::Flag::FINE, "Solve Successfully.");
         return status;
     }
 
@@ -50,7 +50,7 @@ namespace ns_calib {
 
     void CalibSolver::checkSolveStatus(const Status &status) {
         switch (status.flag) {
-            case Status::Flag::OK:
+            case Status::Flag::FINE:
             case Status::Flag::WARNING:
                 std::cout << status << std::endl;
                 break;
@@ -62,7 +62,7 @@ namespace ns_calib {
     }
 
     CalibSolver::Ptr CalibSolver::create() {
-        return {};
+        return std::make_shared<CalibSolver>();
     }
 
 }

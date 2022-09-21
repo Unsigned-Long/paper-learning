@@ -15,7 +15,7 @@
 namespace ns_calib {
     struct Status : std::exception {
         enum class Flag {
-            OK, WARNING, ERROR, FETAL
+            FINE, WARNING, ERROR, FETAL
         };
     public:
         Flag flag;
@@ -24,10 +24,10 @@ namespace ns_calib {
         Status(Flag flag, std::string what)
                 : flag(flag), what(std::move(what)) {}
 
-        Status() = default;
+        Status() : flag(Flag::FINE), what() {}
 
         friend std::ostream &operator<<(std::ostream &os, const Status &status) {
-            os << "[ " << EnumCast::enumToString(status.flag) << " ]-[ " << status.what << " ]";
+            os << "[" << EnumCast::enumToString(status.flag) << "]-[" << status.what << "]";
             return os;
         }
     };
@@ -35,6 +35,8 @@ namespace ns_calib {
     class CalibSolver {
     public:
         using Ptr = std::shared_ptr<CalibSolver>;
+
+        CalibSolver() = default;
 
     private:
         // data, members
@@ -54,7 +56,6 @@ namespace ns_calib {
         Status refinement();
 
     protected:
-        CalibSolver() {}
 
         static void checkSolveStatus(const Status &status);
     };
