@@ -5,32 +5,14 @@
 #ifndef ALG_SIM_CALIB_H
 #define ALG_SIM_CALIB_H
 
-#include <utility>
 #include <ostream>
 #include "utils/enum_cast.hpp"
 #include "string"
 #include "memory"
 #include "iostream"
+#include "utils/status.hpp"
 
 namespace ns_calib {
-    struct Status : std::exception {
-        enum class Flag {
-            FINE, WARNING, ERROR, FETAL
-        };
-    public:
-        Flag flag;
-        std::string what;
-
-        Status(Flag flag, std::string what)
-                : flag(flag), what(std::move(what)) {}
-
-        Status() : flag(Flag::FINE), what() {}
-
-        friend std::ostream &operator<<(std::ostream &os, const Status &status) {
-            os << "[" << EnumCast::enumToString(status.flag) << "]-[" << status.what << "]";
-            return os;
-        }
-    };
 
     class CalibSolver {
     public:
