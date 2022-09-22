@@ -57,7 +57,6 @@ namespace ns_calib {
             *this->map->frameData += *alignedCloud;
         }
 
-
         return true;
     }
 
