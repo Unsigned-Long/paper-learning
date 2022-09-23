@@ -1,0 +1,191 @@
+\documentclass[12pt, twocolumn]{article}
+
+% 引入相关的包
+\usepackage{amsmath, listings, fontspec, geometry, graphicx, ctex, color, subfigure}
+
+% 设定页面的尺寸和比例
+\geometry{left = 1.5cm, right = 1.5cm, top = 1.5cm, bottom = 1.5cm}
+
+% 设定两栏之间的间距
+\setlength\columnsep{1cm}
+
+% 设定字体，为代码的插入作准备
+\newfontfamily\ubuntu{Ubuntu Mono}
+
+% 头部信息
+\title{\normf{这是标题}}
+\author{\normf{陈烁龙}}
+\date{\normf{\today}}
+
+% 代码块的风格设定
+\lstset{
+	language=C++,
+	basicstyle=\scriptsize\ubuntu,
+	keywordstyle=\textbf,
+	stringstyle=\itshape,
+	commentstyle=\itshape,
+	numberstyle=\scriptsize\ubuntu,
+	showstringspaces=false,
+	numbers=left,
+	numbersep=8pt,
+	tabsize=2,
+	frame=single,
+	framerule=1pt,
+	columns=fullflexible,
+	breaklines,
+	frame=shadowbox, 
+	backgroundcolor=\color[rgb]{0.97,0.97,0.97}
+}
+
+% 字体族的定义
+\newcommand{\normf}{\kaishu}
+\newcommand{\boldf}{\heiti}
+\newcommand\keywords[1]{\boldf{关键词：} \normf #1}
+
+\begin{document}
+	
+	% 插入头部信息
+	\maketitle
+	% 换页
+	\thispagestyle{empty}
+	\clearpage
+	
+	% 插入目录、图、表并换页
+	\tableofcontents
+	\listoffigures
+	\listoftables
+	\setcounter{page}{1}
+	% 罗马字母形式的页码
+	\pagenumbering{roman}
+	\clearpage
+	% 从该页开始计数
+	\setcounter{page}{1}
+	% 阿拉伯数字形式的页码
+	\pagenumbering{arabic}
+	
+	\section{\normf{概述}}
+	\normf
+	该论文是该团队在之前论文:Targetless Calibration of LiDAR-IMU System Based on Continuous-time Batch Estimation的基础上做了一些工作得到的结果。具体来说，其相较于上一篇论文，将IMU和雷达的内参也包含进来了，而且体系更加完善。另外，引入了可观性理论，以选择那些有利于估计的数据，同时使用TSVD方法，以在更新状态的时候，选择那些能够进行更新的状态进行更新。
+	
+	在这一次的读书笔记中，只记录和之前论文不一样的部分。
+	
+	\section{\normf{描述}}
+	\subsection{\normf{待估状态}}
+	令待估状态为$\mathcal{X}$，则有：
+	\begin{equation*}
+		\mathcal{X}=\left\lbrace \boldsymbol{x}_p,\boldsymbol{x}_q,\boldsymbol{x}_{Is},\boldsymbol{x}_I,\boldsymbol{x}_L,{^{I}_{L}\bar{\boldsymbol{q}}},{^{I}\boldsymbol{p}_L},t_c \right\rbrace 
+	\end{equation*}
+	其中：$\boldsymbol{x}_p,\boldsymbol{x}_q$分别为待估计轨迹B样条曲线(曲线上的控制点)，$\boldsymbol{x}_{Is}$为IMU的导航状态，$\boldsymbol{x}_I,\boldsymbol{x}_L$分别为IMU和LiDAR的内参，${^{I}_{L}\bar{\boldsymbol{q}}},{^{I}\boldsymbol{p}_L}$为IMU和LiDAR之间的外参，$t_c$为两传感器之间的时延。具体参数的包含内容后续介绍。
+	
+	\subsection{\normf{IMU的内参模型}}
+	IMU传感器的内参如下所示：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+	{^{\omega}\boldsymbol{\omega}}&=\boldsymbol{S}_\omega\boldsymbol{M}_\omega{^{\omega}_{I}\boldsymbol{R}}{^{I}\boldsymbol{\omega}(t)}+\boldsymbol{b}_\omega+\boldsymbol{n}_\omega\\
+	{^{a}\boldsymbol{a}}&=\boldsymbol{S}_a\boldsymbol{M}_a{^{I}\boldsymbol{a}(t)}+\boldsymbol{b}_a+\boldsymbol{n}_a
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+
+	其中：${^{I}\boldsymbol{\omega}(t)},{^{I}\boldsymbol{a}(t)}$为传感器的真实输出(可以从拟合得到的轨迹B样条获得)，${^{\omega}\boldsymbol{\omega}},{^{a}\boldsymbol{a}}$为传感器的实际输出。$\boldsymbol{S}_\omega,\boldsymbol{S}_a$为陀螺和加速度计的比例因子：
+	\begin{equation*}
+		\boldsymbol{S}_\omega=\begin{pmatrix}
+			S_{\omega 1}&0&0\\
+			0&S_{\omega 2}&0\\
+			0&0&S_{\omega 3}
+		\end{pmatrix}\quad
+	\boldsymbol{S}_\omega=\begin{pmatrix}
+		S_{a 1}&0&0\\
+		0&S_{a 2}&0\\
+		0&0&S_{a 3}
+	\end{pmatrix}
+	\end{equation*}
+	$\boldsymbol{M}_\omega,\boldsymbol{M}_a$为陀螺和加速度计的交轴耦合因子：
+	\begin{equation*}
+	\boldsymbol{M}_\omega=\begin{pmatrix}
+		1&M_{\omega 1}&M_{\omega 2}\\
+		0&1&M_{\omega 3}\\
+		0&0&1
+	\end{pmatrix}\quad
+	\boldsymbol{M}_a=\begin{pmatrix}
+		1&M_{a 1}&M_{a 2}\\
+		0&1&M_{a 3}\\
+		0&0&1
+	\end{pmatrix}
+\end{equation*}
+	${^{\omega}_{I}\boldsymbol{R}}$是从IMU坐标系到陀螺坐标系的转换矩阵(由于假定IMU坐标系和加速度计坐标系对齐，所以对于加速度计，其转换矩阵为单位阵)。$\boldsymbol{b}_\omega,\boldsymbol{b}_a$是陀螺和加速度计的零偏，$\boldsymbol{n}_\omega,\boldsymbol{n}_a$是陀螺和加速度计的白噪声。
+	
+	综上，对于IMU，我们要标定的参数有IMU导航状态(8个自由度，注意重力由于大小固定，所以只有两个自由度)：
+	\begin{equation*}
+		\boldsymbol{x}_{Is}=\left\lbrace {^{G}\boldsymbol{g},\boldsymbol{b}_\omega,\boldsymbol{b}_a} \right\rbrace 
+	\end{equation*}
+	IMU的内参(15个自由度)：
+	\begin{equation*}
+		\boldsymbol{x}_I=\left\lbrace \boldsymbol{S}_\omega,\boldsymbol{M}_\omega,{^{\omega}_{I}\boldsymbol{R}},\boldsymbol{S}_a,\boldsymbol{M}_a \right\rbrace 
+	\end{equation*}
+	
+	\subsection{\normf{LiDAR内参模型}}
+	对于3D旋转激光而言，有多个激光束，且每一个都朝向某一个固定的角度(高度角)。通过旋转该排激光束，可以得到一帧思维的点云帧。理想模型为：
+	\begin{equation*}
+		{^{L_k}\boldsymbol{p}_{ik}}=\begin{pmatrix}
+			{^{L_k}\boldsymbol{x}_{ik}}\\
+			{^{L_k}\boldsymbol{y}_{ik}}\\
+			{^{L_k}\boldsymbol{z}_{ik}}
+		\end{pmatrix}=\begin{pmatrix}
+		\rho_{ik}\cos\phi_i\cos\theta_{ik}\\
+		\rho_{ik}\cos\phi_i\sin\theta_{ik}\\
+		\rho_{ik}\sin\theta_{ik}
+	\end{pmatrix}
+	\end{equation*}
+	其中：下标$i$表示激光束的标号，下标$k$表示点的编号，$\rho$表示距离，$\phi$表示高度角，$\theta$表示方位角。在误差$\delta\phi_i,\delta\theta_i,\delta\rho_i$、距离比例因子$s_i$、垂直和水平距离偏差$H_i,V_i$的加持下，真实的激光雷达的测量模型为：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+				\bar{\phi_i}&=\phi_i+\delta\phi_i\\
+				\bar{\theta_{ik}}&=\theta_{ik}+\delta\theta_i\\
+				\bar{\rho_{ik}}&=s_i\rho_{ik}+\delta\rho_i+n_{\rho,ik}			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	那么，有：
+		\begin{equation*}
+		{^{L_k}\boldsymbol{p}_{ik}}=\begin{pmatrix}
+			\bar{\rho}_{ik}\cos\bar{\phi}_i\cos\bar{\theta}_{ik}+H_i\sin\bar{\theta}_{ik}\\
+			\bar{\rho}_{ik}\cos\bar{\phi}_i\sin\bar{\theta}_{ik}+H_i\cos\bar{\theta}_{ik}\\
+			\bar{\rho}_{ik}\sin\bar{\theta}_{ik}+V_i
+		\end{pmatrix}
+	\end{equation*}
+	所以，对于LiDAR而言，我们的待估内参为：
+	\begin{equation*}
+		\boldsymbol{x}_L=\left\lbrace \delta\phi_i,\delta\theta_i,V_i,H_i,s_i,\delta\rho_i \right\rbrace _{|i=0,1,\cdot,l-1}
+	\end{equation*}
+	对于雷达，残差构建为：
+	\begin{equation*}
+		\begin{cases}
+					\begin{aligned}
+				{^{M}\boldsymbol{p}_{ik}}&={^{M}_{L_k}\boldsymbol{R}(\tau_k)}{^{L_k}\boldsymbol{p}_{ik}}+{^{M}\boldsymbol{p}_{L_k}(\tau_k)}\\
+				\boldsymbol{z}_{ijk}&={^{M}\boldsymbol{n}_{\pi,j}^T}{^{M}\boldsymbol{p}_{ij}}+{^{M}d_{\pi,j}}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	其中：
+	\begin{equation*}
+		{^{M}_{L_k}\boldsymbol{T}(\tau_k)}=\left( {^{G}_{I}\boldsymbol{T}(\tau_0+t_c){^{I}_{L}\boldsymbol{T}}} \right)^T {^{G}_{I}\boldsymbol{T}(\tau_0+t_c){^{I}_{L}\boldsymbol{T}}} 
+	\end{equation*}
+	具体来说，我们依托于IMU和LiDAR之间的位姿，将LiDAR在$\tau_k$时刻的状态 转到同时刻的IMU位姿，然后转到IMU全局坐标系下，在转到LiDAR地图坐标系下。这样，优化的时候，也将时空外参纳入到优化体系里了。
+	\subsection{\normf{整体流程}}
+	首先使用NDT算法，初始化LiDAR里程计，同时基于IMU陀螺输出构建姿态B样条曲线。基于二者，可以得到两个传感器之间的位姿变换。利用该位姿变换，对初始点云做去畸变处理，然后再次进行LiDAR里程计算法。而后对点云地图进行网格平面重构，以进行数据关联，接着进行批处理优化。批处理优化后进行迭代修正，开始迭代时只优化时空外参，而后加入传感器内参进行优化。
+	\subsection{\normf{可观性}}
+	对于获取到的数据，将其分块，然后对高斯牛顿法的系数矩阵进行SVD分解，比较片段的最小特征值。该值越大，包含信息越多，越有利于位姿估计。去掉信息少的片断，不参与优化。
+	
+	另外，如果运动激励比较少，会导致某些状态不可估(没有可观性)，这时对信息矩阵进行TSVD变换，将那些特征值小于某个阈值的部分对应状态固定，不参与估计。
+	
+	
+	
+	
+	
+	
+	
+	
+\end{document}
+
