@@ -16,6 +16,8 @@ namespace ns_calib {
     float Config::LiDAROdometer::NDT::RESOLUTION = {};
     int Config::LiDAROdometer::NDT::MAX_ITERATIONS = {};
 
+    float Config::LiDAROdometer::UpdateMapThd = {};
+
     bool Config::initConfig(const std::string &configFilePath) {
         auto config = YAML::LoadFile(configFilePath);
         if (!config["LiDAROdometer"]) {
@@ -34,6 +36,8 @@ namespace ns_calib {
         LiDAROdometer::AVGFilter::LEAF_SIZE(0) = leafSize[0].as<float>();
         LiDAROdometer::AVGFilter::LEAF_SIZE(1) = leafSize[1].as<float>();
         LiDAROdometer::AVGFilter::LEAF_SIZE(2) = leafSize[2].as<float>();
+
+        Config::LiDAROdometer::UpdateMapThd = lidarOdometer["UpdateMapThd"].as<float>();
 
         return true;
     }

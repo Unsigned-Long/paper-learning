@@ -28,10 +28,12 @@ namespace ns_calib {
                 // Approximate Voxel Grid leaf size
                 static Eigen::Vector3f LEAF_SIZE;
             };
+            // update map only when the distance is bigger than the 'UpdateMapThd', unit: Meter
+            static float UpdateMapThd;
         };
 
     public:
-        static bool initConfig(const std::string& configFilePath);
+        static bool initConfig(const std::string &configFilePath);
     };
 }
 
