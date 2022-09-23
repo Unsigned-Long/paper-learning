@@ -12,4 +12,6 @@ LiDAROdometer:
     MAX_ITERATIONS: 50
   AVGFilter:
     # Approximate Voxel Grid leaf size
-    LEAF_SIZE: [0.5, 0.5, 0.5]
+    LEAF_SIZE: [ 0.5, 0.5, 0.5 ]
+  # update map only when the distance is bigger than the 'UpdateMapThd', unit: Meter
+  UpdateMapThd: 2.0
