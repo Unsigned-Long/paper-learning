@@ -12,8 +12,8 @@ namespace ns_calib {
      * LiDAROdometer
      */
     LiDAROdometer::LiDAROdometer(const LiDAR &sensor)
-            : Odometer(sensor), map(nullptr),
-              rawObvVec(), poseVec_frame_to_map(), initialized(false),
+            : Odometer(sensor), map(nullptr), rawObvVec(), keyObvIdx(),
+              poseVec_frame_to_map(), initialized(false),
               filter(nullptr), ndt(nullptr) {}
 
     LiDAROdometer::Ptr LiDAROdometer::create(const LiDAR &sensor) {
@@ -22,15 +22,20 @@ namespace ns_calib {
 
     bool LiDAROdometer::feedObservation(const Sensor::ObvPtr &obv,
                                         const Pose &posePred_cur_to_last,
-                                        bool updateMap) {
+                                        bool updateMapAlways) {
         this->rawObvVec.push_back(obv);
 
-
         if (!this->initialized) {
-            this->map = obv;
             this->poseVec_frame_to_map.emplace_back(Pose());
+            this->keyObvIdx.push_back(0);
+
             this->initAVGFilter();
             this->initNDT();
+
+            this->map = obv;
+            // Setting point cloud to be aligned to.
+            ndt->setInputTarget(map->frameData);
+
             initialized = true;
             return true;
         }
@@ -39,8 +44,6 @@ namespace ns_calib {
 
         // Setting point cloud to be aligned.
         ndt->setInputSource(filteredInputCloud);
-        // Setting point cloud to be aligned to.
-        ndt->setInputTarget(map->frameData);
 
         // Calculating required rigid transform to align the input cloud to the target cloud.
         pcl::PointCloud<Point>::Ptr alignedCloud(new pcl::PointCloud<Point>);
@@ -53,8 +56,15 @@ namespace ns_calib {
         Eigen::Matrix4d pose_frame_to_map = ndt->getFinalTransformation().cast<double>();
         this->poseVec_frame_to_map.emplace_back(Pose::fromT(pose_frame_to_map));
 
-        if (updateMap) {
+        const auto &last_key_frame_to_map = this->poseVec_frame_to_map[this->keyObvIdx.back()];
+        const auto &cur_frame_to_map = this->poseVec_frame_to_map.back();
+
+        if (updateMapAlways || checkMotion(last_key_frame_to_map, cur_frame_to_map)) {
             *this->map->frameData += *alignedCloud;
+            this->keyObvIdx.push_back(this->rawObvVec.size() - 1);
+
+            // Setting point cloud to be aligned to.
+            ndt->setInputTarget(map->frameData);
         }
 
         return true;
@@ -87,6 +97,13 @@ namespace ns_calib {
 
     const LiDAROdometer::ObvPtr &LiDAROdometer::getMap() const {
         return map;
+    }
+
+    bool LiDAROdometer::checkMotion(const LiDAROdometer::Pose &last_frame_to_map,
+                                    const LiDAROdometer::Pose &cur_frame_to_map) const {
+        auto cur_to_last = last_frame_to_map.se3().inverse() * cur_frame_to_map.se3();
+        Eigen::Vector3<Pose::Scale> trans = cur_to_last.translation();
+        return trans.norm() > Config::LiDAROdometer::UpdateMapThd;
     }
 
 }

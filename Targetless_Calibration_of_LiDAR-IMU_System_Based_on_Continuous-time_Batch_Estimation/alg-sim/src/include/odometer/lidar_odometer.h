@@ -32,6 +32,7 @@ namespace ns_calib {
         // point cloud map with time [map time: the reference frame's time]
         ObvPtr map;
         std::vector<ObvPtr> rawObvVec;
+        std::vector<std::size_t> keyObvIdx;
         std::vector<Pose> poseVec_frame_to_map;
 
         bool initialized;
@@ -48,7 +49,7 @@ namespace ns_calib {
 
         static Ptr create(const Sensor &sensor);
 
-        bool feedObservation(const ObvPtr &obv, const Pose &posePred_cur_to_last = Pose(), bool updateMap = true);
+        bool feedObservation(const ObvPtr &obv, const Pose &posePred_cur_to_last = Pose(), bool updateMapAlways = true);
 
         [[nodiscard]] const ObvPtr &getMap() const;
 
@@ -58,6 +59,8 @@ namespace ns_calib {
         void initNDT();
 
         FrameDataPtr filterFrameData(const FrameDataPtr &input);
+
+        [[nodiscard]] bool checkMotion(const Pose &last_frame_to_map, const Pose &cur_frame_to_map) const;
     };
 }
 
