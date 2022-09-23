@@ -11,8 +11,7 @@ int main(int argc, char **argv) {
     try {
         // load configure file
         if (!Config::initConfig("../config/config.yaml")) {
-            throw Status(Status::Flag::ERROR,
-                         "Initialize Configure Failed in 'Config::initConfig'.");
+            throw Status(Status::Flag::ERROR, "Initialize Configure Failed in 'Config::initConfig'.");
         }
         // lidar odometer
         auto lidarOdometer = LiDAROdometer::create(ns_calib::LiDAR(ns_calib::LiDARParameter()));
@@ -26,21 +25,22 @@ int main(int argc, char **argv) {
         pcl::visualization::CloudViewer viewer("Simple Cloud Viewer");
 
         // run visualization in another thread
-        std::thread thread([&viewer]() {
-            while (!viewer.wasStopped()) {}
-        });
+        std::thread thread([&viewer]() { while (!viewer.wasStopped()) {}});
 
         // feed frame
         for (const auto &framePath: lidarFrames) {
+            if (viewer.wasStopped()) {
+                break;
+            }
             auto cloud = KittiReader::readFrame(framePath);
             LOG_VAR(framePath);
 
             lidarOdometer->feedObservation(
-                    std::make_shared<LiDAROdometer::Obv>(0, cloud)
+                    std::make_shared<LiDAROdometer::Obv>(0, cloud),
+                    LiDAROdometer::Pose(), false
             );
 
             viewer.showCloud(lidarOdometer->getMap()->frameData);
-            // std::cin.get();
         }
         thread.join();
 

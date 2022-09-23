@@ -22,14 +22,11 @@ add_executable(${CMAKE_PROJECT_NAME}_test_lidar_odometer ${CMAKE_CURRENT_SOURCE_
 
 target_include_directories(
         ${CMAKE_PROJECT_NAME}_test_lidar_odometer PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${GTEST_INCLUDE_DIRS}
         ${CMAKE_SOURCE_DIR}/src/include
 )
 
 target_link_libraries(
         ${CMAKE_PROJECT_NAME}_test_lidar_odometer PRIVATE
         ${CMAKE_PROJECT_NAME}
-        ${GTEST_BOTH_LIBRARIES}
         pthread
 )

@@ -18,6 +18,8 @@ TEST(config, Config) {
     EXPECT_FLOAT_EQ(Config::LiDAROdometer::AVGFilter::LEAF_SIZE[0], 0.5f);
     EXPECT_FLOAT_EQ(Config::LiDAROdometer::AVGFilter::LEAF_SIZE[1], 0.5f);
     EXPECT_FLOAT_EQ(Config::LiDAROdometer::AVGFilter::LEAF_SIZE[2], 0.5f);
+
+    EXPECT_FLOAT_EQ(Config::LiDAROdometer::UpdateMapThd, 2.0f);
 }
 
 #endif //ALG_SIM_TEST_CONFIG_HPP
