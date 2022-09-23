@@ -8,6 +8,7 @@
 #include "sensor/sensor.h"
 #include "config.h"
 #include "sophus/so3.hpp"
+#include "sophus/se3.hpp"
 
 namespace ns_calib {
     template<class SensorType>
@@ -26,13 +27,14 @@ namespace ns_calib {
 
     };
 
-    template<class Scalar>
+    template<class ScalarType>
     struct OdometerPose {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-        using Rotation = Sophus::SO3<Scalar>;
-        using Translation = Eigen::Vector3<Scalar>;
+        using Scale = ScalarType;
+        using Rotation = Sophus::SO3<Scale>;
+        using Translation = Eigen::Vector3<Scale>;
 
         Rotation so3;
         Translation t;
@@ -46,23 +48,27 @@ namespace ns_calib {
 
         OdometerPose() : so3(), t(Translation::Zero()), timeStamp() {}
 
-        Eigen::Quaternion<Scalar> q() const {
+        Eigen::Quaternion<ScalarType> q() const {
             return so3.unit_quaternion();
         }
 
-        Eigen::Matrix3<Scalar> R() const {
+        Eigen::Matrix3<ScalarType> R() const {
             return q().toRotationMatrix();
         }
 
-        Eigen::Matrix4<Scalar> T() const {
-            Eigen::Matrix4<Scalar> T = Eigen::Matrix4<Scalar>::Identity();
+        Sophus::SE3<ScalarType> se3() const {
+            return Sophus::SE3<ScalarType>(so3, t);
+        }
+
+        Eigen::Matrix4<ScalarType> T() const {
+            Eigen::Matrix4<ScalarType> T = Eigen::Matrix4<ScalarType>::Identity();
             T.template block<3, 3>(0, 0) = R();
             T.template block<3, 1>(0, 3) = t;
             return T;
         }
 
-        static OdometerPose fromT(const Eigen::Matrix4<Scalar> &T) {
-            Eigen::Matrix3<Scalar> rotMat = T.template block<3, 3>(0, 0);
+        static OdometerPose fromT(const Eigen::Matrix4<ScalarType> &T) {
+            Eigen::Matrix3<ScalarType> rotMat = T.template block<3, 3>(0, 0);
             rotMat = adjustRotationMatrix(rotMat);
 
             OdometerPose pose;
@@ -71,8 +77,8 @@ namespace ns_calib {
             return pose;
         }
 
-        static OdometerPose fromRt(const Eigen::Matrix3<Scalar> &R, const Eigen::Vector3<Scalar> &t) {
-            Eigen::Matrix3<Scalar> rotMat = adjustRotationMatrix(R);
+        static OdometerPose fromRt(const Eigen::Matrix3<ScalarType> &R, const Eigen::Vector3<ScalarType> &t) {
+            Eigen::Matrix3<ScalarType> rotMat = adjustRotationMatrix(R);
 
             OdometerPose pose;
             pose.so3 = Rotation(rotMat);
@@ -81,12 +87,12 @@ namespace ns_calib {
         }
 
     protected:
-        static Eigen::Matrix3<Scalar> adjustRotationMatrix(const Eigen::Matrix3<Scalar> &rotMat) {
+        static Eigen::Matrix3<ScalarType> adjustRotationMatrix(const Eigen::Matrix3<ScalarType> &rotMat) {
             // adjust
-            Eigen::JacobiSVD<Eigen::Matrix3<Scalar>> svd(rotMat, Eigen::ComputeFullV | Eigen::ComputeFullU);
-            const Eigen::Matrix3<Scalar> &vMatrix = svd.matrixV();
-            const Eigen::Matrix3<Scalar> &uMatrix = svd.matrixU();
-            Eigen::Matrix3<Scalar> adjustedRotMat = uMatrix * vMatrix.transpose();
+            Eigen::JacobiSVD<Eigen::Matrix3<ScalarType>> svd(rotMat, Eigen::ComputeFullV | Eigen::ComputeFullU);
+            const Eigen::Matrix3<ScalarType> &vMatrix = svd.matrixV();
+            const Eigen::Matrix3<ScalarType> &uMatrix = svd.matrixU();
+            Eigen::Matrix3<ScalarType> adjustedRotMat = uMatrix * vMatrix.transpose();
             return adjustedRotMat;
         }
     };
