@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_COMPUTEFEATURES_HPP
-#define SFM_COMPUTEFEATURES_HPP
+#ifndef SFM_COMPUTE_FEATURES_HPP
+#define SFM_COMPUTE_FEATURES_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -288,4 +288,4 @@ int computeFeatures() {
 }
 
 
-#endif //SFM_COMPUTEFEATURES_HPP
+#endif //SFM_COMPUTE_FEATURES_HPP

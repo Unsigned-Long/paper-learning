@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_COMPUTESFM_DATACOLOR_HPP
-#define SFM_COMPUTESFM_DATACOLOR_HPP
+#ifndef SFM_COMPUTE_SFM_DATA_COLOR_HPP
+#define SFM_COMPUTE_SFM_DATA_COLOR_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -19,7 +19,7 @@
 #include "openMVG/system/logger.hpp"
 #include "openMVG/types.hpp"
 
-#include "SfMPlyHelper.hpp"
+#include "SfM_ply_helper.hpp"
 #include "third_party/cmdLine/cmdLine.h"
 
 
@@ -70,4 +70,4 @@ int computeSfMDataColor() {
 }
 
 
-#endif //SFM_COMPUTESFM_DATACOLOR_HPP
+#endif //SFM_COMPUTE_SFM_DATA_COLOR_HPP

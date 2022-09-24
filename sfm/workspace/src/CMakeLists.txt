@@ -21,6 +21,6 @@ target_link_libraries(
         OpenMVG::openMVG_matching
         OpenMVG::openMVG_features
         OpenMVG::openMVG_exif
-        libvlsift.a
         OpenMVG::openMVG_matching_image_collection
+        libvlsift.a
 )

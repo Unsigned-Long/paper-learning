@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_PAIRGENERATOR_HPP
-#define SFM_PAIRGENERATOR_HPP
+#ifndef SFM_PAIR_GENERATOR_HPP
+#define SFM_PAIR_GENERATOR_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -111,4 +111,4 @@ int pairGenerator() {
 }
 
 
-#endif //SFM_PAIRGENERATOR_HPP
+#endif //SFM_PAIR_GENERATOR_HPP

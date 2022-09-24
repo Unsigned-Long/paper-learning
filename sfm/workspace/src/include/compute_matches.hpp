@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_COMPUTEMATCHES_HPP
-#define SFM_COMPUTEMATCHES_HPP
+#ifndef SFM_COMPUTE_MATCHES_HPP
+#define SFM_COMPUTE_MATCHES_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -267,4 +267,4 @@ int computeMatches() {
 }
 
 
-#endif //SFM_COMPUTEMATCHES_HPP
+#endif //SFM_COMPUTE_MATCHES_HPP

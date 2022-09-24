@@ -126,7 +126,7 @@ bool computeIndexFromImageNames(
             initialPairIndex.second != UndefinedIndexT);
 }
 
-int globalSfM() {
+int globalSfM(std::unique_ptr<ReconstructionEngine>& sfm_engine) {
     OPENMVG_LOG_INFO
     << "\n-----------------------------------------------------------"
     << "\n Structure from Motion:"
@@ -314,8 +314,6 @@ int globalSfM() {
         return EXIT_FAILURE;
     }
 
-
-    std::unique_ptr<ReconstructionEngine> sfm_engine;
     switch (sfm_engine_type) {
         case ESfMEngine::INCREMENTAL: {
             SequentialSfMReconstructionEngine *engine =

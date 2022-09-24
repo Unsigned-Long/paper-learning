@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_GEOMETRICFILTER_HPP
-#define SFM_GEOMETRICFILTER_HPP
+#ifndef SFM_GEOMETRIC_FILTER_HPP
+#define SFM_GEOMETRIC_FILTER_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -348,4 +348,4 @@ int geometricFilter() {
 }
 
 
-#endif //SFM_GEOMETRICFILTER_HPP
+#endif //SFM_GEOMETRIC_FILTER_HPP
