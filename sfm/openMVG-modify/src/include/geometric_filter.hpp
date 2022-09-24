@@ -79,10 +79,10 @@ int geometricFilter() {
     // The output pairs
     std::string sOutputPairsFilename;
 
-    std::string sGeometricModel = "e";
-    bool bForce = false;
-    bool bGuided_matching = false;
-    int imax_iteration = 2048;
+    std::string sGeometricModel = Config::GeometricFilter::geometricModel;
+    bool bForce = Config::GeometricFilter::force;
+    bool bGuided_matching = Config::GeometricFilter::guidedMatching;
+    int imax_iteration = Config::GeometricFilter::maxIteration;
     unsigned int ui_max_cache_size = 0;
 
     OPENMVG_LOG_INFO << "--input_file:        " << sSfM_Data_Filename << "\n"

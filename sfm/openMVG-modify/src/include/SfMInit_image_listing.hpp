@@ -139,18 +139,18 @@ int fMInitImageListing() {
     std::string sOutputDir = Config::outputDir + "/matches";
     std::string sKmatrix;
 
-    std::string sPriorWeights = "1.0;1.0;1.0";
+    std::string sPriorWeights = Config::SfMInitImageListing::priorWeights;
     std::pair<bool, Vec3> prior_w_info(false, Vec3());
 
-    int i_User_camera_model = PINHOLE_CAMERA_RADIAL3;
+    int i_User_camera_model = Config::SfMInitImageListing::cameraModel;
 
-    bool b_Group_camera_model = true;
+    bool b_Group_camera_model = Config::SfMInitImageListing::groupCameraModel;
 
-    int i_GPS_XYZ_method = 0;
+    int i_GPS_XYZ_method = Config::SfMInitImageListing::GPS_XYZ_Method;
 
-    double focal_pixels = -1.0;
+    double focal_pixels = Config::SfMInitImageListing::focalPixels;
 
-    const bool b_Use_pose_prior = false;
+    const bool b_Use_pose_prior = Config::SfMInitImageListing::usePosePrior;
     OPENMVG_LOG_INFO << "\n--imageDirectory " << sImageDir
                      << "\n--sensorWidthDatabase " << sfileDatabase
                      << "\n--outputDirectory " << sOutputDir

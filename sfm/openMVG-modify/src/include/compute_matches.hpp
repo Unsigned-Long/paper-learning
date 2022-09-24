@@ -50,10 +50,10 @@ int computeMatches() {
 
     std::string sSfM_Data_Filename = Config::outputDir + "/matches/sfm_data.json";
     std::string sOutputMatchesFilename = Config::outputDir + "/matches/matches.putative.bin";
-    float fDistRatio = 0.8f;
+    float fDistRatio = Config::ComputeMatches::distRatio;
     std::string sPredefinedPairList = Config::outputDir + "/matches/pairs.bin";
-    std::string sNearestMatchingMethod = "AUTO";
-    bool bForce = false;
+    std::string sNearestMatchingMethod = Config::ComputeMatches::nearestMatchingMethod;
+    bool bForce = Config::ComputeMatches::force;
     unsigned int ui_max_cache_size = 0;
 
     // Pre-emptive matching parameters

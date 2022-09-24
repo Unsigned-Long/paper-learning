@@ -69,9 +69,9 @@ int computeFeatures() {
 
     std::string sSfM_Data_Filename = Config::outputDir + "/matches/sfm_data.json";
     std::string sOutDir = Config::outputDir + "/matches";
-    bool bUpRight = false;
-    std::string sImage_Describer_Method = "SIFT";
-    bool bForce = false;
+    bool bUpRight = Config::ComputeFeatures::upRight;
+    std::string sImage_Describer_Method = Config::ComputeFeatures::imageDescriberMethod;
+    bool bForce = Config::ComputeFeatures::force;
     std::string sFeaturePreset = "";
 #ifdef OPENMVG_USE_OPENMP
     int iNumThreads = 0;

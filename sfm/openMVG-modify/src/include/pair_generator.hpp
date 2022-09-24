@@ -40,8 +40,8 @@ int pairGenerator() {
 
     std::string sSfMDataFilename = Config::outputDir + "/matches/sfm_data.json";
     std::string sOutputPairsFilename = Config::outputDir + "/matches/pairs.bin";
-    std::string sPairMode = "EXHAUSTIVE";
-    int iContiguousCount = -1;
+    std::string sPairMode = Config::PairGenerator::pairMode;
+    int iContiguousCount = Config::PairGenerator::contiguousCount;
 
     // 0. Parse parameters
     OPENMVG_LOG_INFO << "--input_file       : " << sSfMDataFilename << "\n"
