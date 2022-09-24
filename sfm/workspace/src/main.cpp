@@ -39,5 +39,12 @@ int main(int argc, char **argv) {
         OPENMVG_LOG_ERROR << "[computeSfMDataColor] failed.";
     }
 
+    auto sfmData = sfm_engine->Get_SfM_Data();
+
+    // methods to get SfM info
+    sfmData.GetPoses();
+    sfmData.GetControl_Points();
+    sfmData.GetLandmarks();
+
     return EXIT_SUCCESS;
 }
