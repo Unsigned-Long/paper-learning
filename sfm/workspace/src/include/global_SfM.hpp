@@ -136,7 +136,7 @@ int globalSfM() {
     std::string directory_match;
     std::string filename_match = Config::outputDir + "/matches/matches.e.bin";
     std::string directory_output = Config::outputDir + "/reconstruction_global";
-    std::string engine_name = "INCREMENTAL";
+    std::string engine_name = Config::engineName;
 
     // Create output dir
     if (!stlplus::folder_exists(directory_output)) {
