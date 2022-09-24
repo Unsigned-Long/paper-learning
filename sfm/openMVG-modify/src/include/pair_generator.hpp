@@ -21,7 +21,7 @@
 #include "third_party/stlplus3/filesystemSimplified/file_system.hpp"
 
 #include <iostream>
-#include "config.hpp"
+#include "config.h"
 
 /**
  * @brief Current list of available pair mode

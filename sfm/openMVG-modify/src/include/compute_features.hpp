@@ -39,7 +39,7 @@
 #include <fstream>
 #include <string>
 
-#include "config.hpp"
+#include "config.h"
 
 #ifdef OPENMVG_USE_OPENMP
 #include <omp.h>
@@ -66,7 +66,6 @@ features::EDESCRIBER_PRESET stringToEnum(const std::string &sPreset) {
 /// - Compute view image description (feature & descriptor extraction)
 /// - Export computed data
 int computeFeatures() {
-    CmdLine cmd;
 
     std::string sSfM_Data_Filename = Config::outputDir + "/matches/sfm_data.json";
     std::string sOutDir = Config::outputDir + "/matches";
@@ -76,19 +75,6 @@ int computeFeatures() {
     std::string sFeaturePreset = "";
 #ifdef OPENMVG_USE_OPENMP
     int iNumThreads = 0;
-#endif
-
-    // required
-    cmd.add(make_option('i', sSfM_Data_Filename, "input_file"));
-    cmd.add(make_option('o', sOutDir, "outdir"));
-    // Optional
-    cmd.add(make_option('m', sImage_Describer_Method, "describerMethod"));
-    cmd.add(make_option('u', bUpRight, "upright"));
-    cmd.add(make_option('f', bForce, "force"));
-    cmd.add(make_option('p', sFeaturePreset, "describerPreset"));
-
-#ifdef OPENMVG_USE_OPENMP
-    cmd.add( make_option('n', iNumThreads, "numThreads") );
 #endif
 
     OPENMVG_LOG_INFO

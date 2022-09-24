@@ -1,15 +1,15 @@
-#include "artwork/logger/logger.h"
-
 #include "compute_features.hpp"
 #include "compute_matches.hpp"
 #include "config.h"
-#include "fMInit_image_listing.hpp"
+#include "SfMInit_image_listing.hpp"
 #include "geometric_filter.hpp"
 #include "global_SfM.hpp"
 #include "pair_generator.hpp"
 #include "compute_SfM_data_color.hpp"
 
 int main(int argc, char **argv) {
+    Config::loadConfig("../config/config.yaml");
+
     if (fMInitImageListing() == EXIT_FAILURE) {
         OPENMVG_LOG_ERROR << "[fMInitImageListing] failed.";
     }

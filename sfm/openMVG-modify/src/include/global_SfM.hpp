@@ -126,7 +126,7 @@ bool computeIndexFromImageNames(
             initialPairIndex.second != UndefinedIndexT);
 }
 
-int globalSfM(std::unique_ptr<ReconstructionEngine>& sfm_engine) {
+int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
     OPENMVG_LOG_INFO
     << "\n-----------------------------------------------------------"
     << "\n Structure from Motion:"
@@ -136,7 +136,7 @@ int globalSfM(std::unique_ptr<ReconstructionEngine>& sfm_engine) {
     std::string directory_match;
     std::string filename_match = Config::outputDir + "/matches/matches.e.bin";
     std::string directory_output = Config::outputDir + "/reconstruction_global";
-    std::string engine_name = Config::engineName;
+    std::string engine_name = Config::GlobalSfM::engineName;
 
     // Create output dir
     if (!stlplus::folder_exists(directory_output)) {

@@ -1,0 +1,75 @@
+imgDir: "../img"
+outputDir: "../new_output"
+fileDatabasePath: "../config/sensor_width_camera_database.txt"
+
+SfMInitImageListing:
+  priorWeights: "1.0;1.0;1.0"
+  # cameraModel choice:
+  # PINHOLE_CAMERA_START(0)
+  # PINHOLE_CAMERA(1) No distortion
+  # PINHOLE_CAMERA_RADIAL1(2) radial distortion K1
+  # PINHOLE_CAMERA_RADIAL3(3) radial distortion K1,K2,K3
+  # PINHOLE_CAMERA_BROWN(4) radial distortion K1,K2,K3, tangential distortion T1,T2
+  # PINHOLE_CAMERA_FISHEYE(5) a simple Fish-eye distortion model with 4 distortion coefficients
+  # CAMERA_SPHERICAL(7)
+  cameraModel: 3
+  # GPS_XYZ_Method choice:
+  # ECEF(0) or UTM(1) XYZ position to the GPS position array
+  GPS_XYZ_Method: 0
+  usePosePrior: false
+  focalPixels: -1.0
+  #  true: view can share some camera intrinsic parameters
+  # false: each view have its own camera intrinsic parameters
+  groupCameraModel: true
+
+ComputeFeatures:
+  # use upright feature
+  upRight: false
+  # force to recompute data
+  force: false
+  # imageDescriberMethod choice:
+  # SIFT SIFT_ANATOMY AKAZE_FLOAT AKAZE_MLDB
+  imageDescriberMethod: "SIFT"
+
+PairGenerator:
+  # pairMode choice:
+  # EXHAUSTIVE: Build all possible pairs
+  # CONTIGUOUS: Build pairs for contiguous images
+  pairMode: "EXHAUSTIVE"
+  # number of contiguous links [if you use 'CONTIGUOUS', make it a positive number]
+  # e.g.
+  # 2: will match 0 with (1,2), 1 with (2,3), ...
+  # 3: will match 0 with (1,2,3), 1 with (2,3,4), ...
+  contiguousCount: -1
+
+ComputeMatches:
+  # distance ratio to discard non meaningful matches
+  distRatio: 0.8
+  # nearestMatchingMethod choice:
+  # AUTO BRUTEFORCEL2 BRUTEFORCEHAMMING HNSWL2 HNSWL1
+  # HNSWHAMMING ANNL2 CASCADEHASHINGL2 FASTCASCADEHASHINGL2
+  nearestMatchingMethod: "AUTO"
+  # force to recompute data
+  force: false
+
+GeometricFilter:
+  # geometricModel choice:
+  # f: fundamental matrix
+  # e: essential matrix
+  # h: homography matrix
+  # a: essential matrix with an angular parametrization
+  # u: upright essential matrix with an angular parametrization
+  # o: orthographic essential matrix
+  geometricModel: "e"
+  # force to recompute data
+  force: false
+  # use the found model to improve the pairwise correspondences.
+  guidedMatching: false
+  maxIteration: 2048
+
+GlobalSfM:
+  # engineName choice:
+  # INCREMENTAL: add image sequentially to a 2 view seed
+  # INCREMENTALV2: add image sequentially to a 2 or N view seed (experimental)
+  # GLOBAL: initialize globally rotation and translations
+  engineName: "GLOBAL"

@@ -2,8 +2,8 @@
 // Created by csl on 9/24/22.
 //
 
-#ifndef SFM_FMINIT_IMAGE_LISTING_HPP
-#define SFM_FMINIT_IMAGE_LISTING_HPP
+#ifndef SFM_SFMINIT_IMAGE_LISTING_HPP
+#define SFM_SFMINIT_IMAGE_LISTING_HPP
 
 // This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
 
@@ -35,7 +35,7 @@
 #include <string>
 #include <utility>
 
-#include "config.hpp"
+#include "config.h"
 
 using namespace openMVG;
 using namespace openMVG::cameras;
@@ -409,4 +409,4 @@ int fMInitImageListing() {
 }
 
 
-#endif //SFM_FMINIT_IMAGE_LISTING_HPP
+#endif //SFM_SFMINIT_IMAGE_LISTING_HPP
