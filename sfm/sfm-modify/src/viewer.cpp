@@ -180,7 +180,7 @@ void visualization(const std::vector<std::pair<Eigen::Quaternionf, Eigen::Vector
 }
 
 int main(int argc, char **argv) {
-    auto cloud = Reader::readPoints("../output/_points.ply");
+    auto cloud = Reader::readPoints("../output/colorized.ply");
     auto cameras = Reader::readCameras("../output/_cameras.ply");
     visualization(cameras, cloud);
     return 0;

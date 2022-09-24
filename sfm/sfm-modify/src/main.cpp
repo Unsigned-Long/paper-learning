@@ -6,7 +6,7 @@ using namespace sfmtoylib;
 using namespace std;
 
 int main(int argc, char **argv) {
-    const std::string imagesDirectory = "../img/test/";
+    const std::string imagesDirectory = "../img/";
     const std::string outputPrefix = "../output/";
     constexpr double downscale = 1.0;
 
