@@ -8,10 +8,10 @@ add_definitions(-DOPENMVG_USE_OPENMP)
 
 aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src SRC_FILES)
 
-add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_FILES})
 
 target_include_directories(
-        ${PROJECT_NAME}
+        ${CMAKE_PROJECT_NAME}
         PUBLIC
         ${YAML_CPP_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -19,7 +19,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-        ${PROJECT_NAME}
+        ${CMAKE_PROJECT_NAME}
         PUBLIC
         OpenMVG::openMVG_sfm
         OpenMVG::openMVG_matching
@@ -30,7 +30,7 @@ target_link_libraries(
         ${YAML_CPP_LIBRARIES}
 )
 
-add_executable(${PROJECT_NAME}_proj ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SRC_FILES})
+add_executable(${CMAKE_PROJECT_NAME}_proj ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 
 target_link_libraries(
         ${PROJECT_NAME}_proj
