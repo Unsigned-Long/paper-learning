@@ -107,7 +107,7 @@ int geometricFilter() {
         return EXIT_FAILURE;
     }
     if (sPutativeMatchesFilename.empty()) {
-        OPENMVG_LOG_ERROR << "It is an invalid putative matche file";
+        OPENMVG_LOG_ERROR << "It is an invalid putative match file";
         return EXIT_FAILURE;
     }
 
@@ -160,7 +160,7 @@ int geometricFilter() {
     //---------------------------------------
     // Init the regions_type from the image describer file (used for image regions extraction)
     using namespace openMVG::features;
-    // Consider that the image_describer.json is inside the matches directory (which is bellow the sfm_data.bin)
+    // Consider that the image_describer.json is inside the matches' directory (which is bellow the sfm_data.bin)
     const std::string sImage_describer = stlplus::create_filespec(sMatchesDirectory, "image_describer.json");
     std::unique_ptr<Regions> regions_type = Init_region_type_from_file(sImage_describer);
     if (!regions_type) {
@@ -215,11 +215,12 @@ int geometricFilter() {
     //---------------------------------------
     // b. Geometric filtering of putative matches
     //    - AContrario Estimation of the desired geometric model
-    //    - Use an upper bound for the a contrario estimated threshold
+    //    - Use an upper bound for the contrario estimated threshold
     //---------------------------------------
 
     std::unique_ptr<ImageCollectionGeometricFilter> filter_ptr(
-            new ImageCollectionGeometricFilter(&sfm_data, regions_provider));
+            new ImageCollectionGeometricFilter(&sfm_data, regions_provider)
+    );
 
     if (filter_ptr) {
         system::Timer timer;
@@ -259,14 +260,14 @@ int geometricFilter() {
 
                 //-- Perform an additional check to remove pairs with poor overlap
                 std::vector<PairWiseMatches::key_type> vec_toRemove;
-                for (const auto &pairwisematches_it: map_GeometricMatches) {
+                for (const auto &pairwiseMatchesIt: map_GeometricMatches) {
                     const size_t putativePhotometricCount = map_PutativeMatches.find(
-                            pairwisematches_it.first)->second.size();
-                    const size_t putativeGeometricCount = pairwisematches_it.second.size();
+                            pairwiseMatchesIt.first)->second.size();
+                    const size_t putativeGeometricCount = pairwiseMatchesIt.second.size();
                     const float ratio = putativeGeometricCount / static_cast<float>( putativePhotometricCount );
                     if (putativeGeometricCount < 50 || ratio < .3f) {
                         // the pair will be removed
-                        vec_toRemove.push_back(pairwisematches_it.first);
+                        vec_toRemove.push_back(pairwiseMatchesIt.first);
                     }
                 }
                 //-- remove discarded pairs
@@ -278,14 +279,18 @@ int geometricFilter() {
             case ESSENTIAL_MATRIX_ANGULAR: {
                 filter_ptr->Robust_model_estimation(
                         GeometricFilter_ESphericalMatrix_AC_Angular<false>(4.0, imax_iteration),
-                        map_PutativeMatches, bGuided_matching, d_distance_ratio, &progress);
+                        map_PutativeMatches,
+                        bGuided_matching, d_distance_ratio, &progress
+                );
                 map_GeometricMatches = filter_ptr->Get_geometric_matches();
             }
                 break;
             case ESSENTIAL_MATRIX_UPRIGHT: {
                 filter_ptr->Robust_model_estimation(
                         GeometricFilter_ESphericalMatrix_AC_Angular<true>(4.0, imax_iteration),
-                        map_PutativeMatches, bGuided_matching, d_distance_ratio, &progress);
+                        map_PutativeMatches,
+                        bGuided_matching, d_distance_ratio, &progress
+                );
                 map_GeometricMatches = filter_ptr->Get_geometric_matches();
             }
                 break;
@@ -295,7 +300,8 @@ int geometricFilter() {
                         map_PutativeMatches,
                         bGuided_matching,
                         d_distance_ratio,
-                        &progress);
+                        &progress
+                );
                 map_GeometricMatches = filter_ptr->Get_geometric_matches();
             }
                 break;
@@ -317,22 +323,26 @@ int geometricFilter() {
         //-- export Adjacency matrix
         OPENMVG_LOG_INFO << "\n Export Adjacency Matrix of the pairwise's geometric matches";
 
-        PairWiseMatchingToAdjacencyMatrixSVG(sfm_data.GetViews().size(),
-                                             map_GeometricMatches,
-                                             stlplus::create_filespec(sMatchesDirectory, "GeometricAdjacencyMatrix",
-                                                                      "svg"));
+        PairWiseMatchingToAdjacencyMatrixSVG(
+                sfm_data.GetViews().size(),
+                map_GeometricMatches,
+                stlplus::create_filespec(sMatchesDirectory, "GeometricAdjacencyMatrix", "svg")
+        );
 
         const Pair_Set outputPairs = getPairs(map_GeometricMatches);
 
         //-- export view pair graph once geometric filter have been done
         {
             std::set<IndexT> set_ViewIds;
-            std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
-                           std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+            std::transform(
+                    sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
+                    std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey()
+            );
             graph::indexedGraph putativeGraph(set_ViewIds, outputPairs);
             graph::exportToGraphvizData(
                     stlplus::create_filespec(sMatchesDirectory, "geometric_matches"),
-                    putativeGraph);
+                    putativeGraph
+            );
         }
 
         // Write pairs

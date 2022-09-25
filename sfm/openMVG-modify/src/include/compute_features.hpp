@@ -37,12 +37,15 @@
 #include <atomic>
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <string>
 
 #include "config.h"
 
 #ifdef OPENMVG_USE_OPENMP
+
 #include <omp.h>
+
 #endif
 
 using namespace openMVG;
@@ -66,26 +69,24 @@ features::EDESCRIBER_PRESET stringToEnum(const std::string &sPreset) {
 /// - Compute view image description (feature & descriptor extraction)
 /// - Export computed data
 int computeFeatures() {
-
     std::string sSfM_Data_Filename = Config::outputDir + "/matches/sfm_data.json";
     std::string sOutDir = Config::outputDir + "/matches";
     bool bUpRight = Config::ComputeFeatures::upRight;
     std::string sImage_Describer_Method = Config::ComputeFeatures::imageDescriberMethod;
     bool bForce = Config::ComputeFeatures::force;
-    std::string sFeaturePreset = "";
+    std::string sFeaturePreset;
+
 #ifdef OPENMVG_USE_OPENMP
     int iNumThreads = 0;
 #endif
 
     OPENMVG_LOG_INFO
-    << "--input_file " << sSfM_Data_Filename << "\n"
-    << "--outdir " << sOutDir << "\n"
-    << "--describerMethod " << sImage_Describer_Method << "\n"
-    << "--upright " << bUpRight << "\n"
+    << "--input_file " << sSfM_Data_Filename << "\n" << "--outdir " << sOutDir << "\n"
+    << "--describerMethod " << sImage_Describer_Method << "\n" << "--upright " << bUpRight << "\n"
     << "--describerPreset " << (sFeaturePreset.empty() ? "NORMAL" : sFeaturePreset) << "\n"
     << "--force " << bForce << "\n"
-#ifdef OPENMVG_USE_OPENMP
-        << "--numThreads " << iNumThreads << "\n"
+    #ifdef OPENMVG_USE_OPENMP
+    << "--numThreads " << iNumThreads << "\n"
 #endif
             ;
 
@@ -132,29 +133,33 @@ int computeFeatures() {
             archive(cereal::make_nvp("image_describer", image_describer));
         }
         catch (const cereal::Exception &e) {
-            OPENMVG_LOG_ERROR << e.what() << '\n'
-                              << "Cannot dynamically allocate the Image_describer interface.";
+            OPENMVG_LOG_ERROR
+            << e.what() << '\n' << "Cannot dynamically allocate the Image_describer interface.";
             return EXIT_FAILURE;
         }
     } else {
         // Create the desired Image_describer method.
         // Don't use a factory, perform direct allocation
         if (sImage_Describer_Method == "SIFT") {
-            image_describer.reset(new SIFT_Image_describer
-                                          (SIFT_Image_describer::Params(), !bUpRight));
+            image_describer = std::make_unique<SIFT_Image_describer>(
+                    SIFT_Image_describer::Params(), !bUpRight
+            );
         } else if (sImage_Describer_Method == "SIFT_ANATOMY") {
-            image_describer.reset(
-                    new SIFT_Anatomy_Image_describer(SIFT_Anatomy_Image_describer::Params()));
+            image_describer = std::make_unique<SIFT_Anatomy_Image_describer>(
+                    SIFT_Anatomy_Image_describer::Params()
+            );
         } else if (sImage_Describer_Method == "AKAZE_FLOAT") {
-            image_describer = AKAZE_Image_describer::create
-                    (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !bUpRight);
+            image_describer = AKAZE_Image_describer::create(
+                    AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MSURF), !bUpRight
+            );
         } else if (sImage_Describer_Method == "AKAZE_MLDB") {
-            image_describer = AKAZE_Image_describer::create
-                    (AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !bUpRight);
+            image_describer = AKAZE_Image_describer::create(
+                    AKAZE_Image_describer::Params(AKAZE::Params(), AKAZE_MLDB), !bUpRight
+            );
         }
         if (!image_describer) {
-            OPENMVG_LOG_ERROR << "Cannot create the designed Image_describer:"
-                              << sImage_Describer_Method << ".";
+            OPENMVG_LOG_ERROR
+            << "Cannot create the designed Image_describer:" << sImage_Describer_Method << ".";
             return EXIT_FAILURE;
         } else {
             if (!sFeaturePreset.empty())
@@ -168,6 +173,7 @@ int computeFeatures() {
         // - dynamic future regions computation and/or loading
         {
             std::ofstream stream(sImage_describer.c_str());
+
             if (!stream)
                 return EXIT_FAILURE;
 
@@ -190,19 +196,21 @@ int computeFeatures() {
 
         // Use a boolean to track if we must stop feature extraction
         std::atomic<bool> preemptive_exit(false);
+
 #ifdef OPENMVG_USE_OPENMP
         const unsigned int nb_max_thread = omp_get_max_threads();
 
-    if (iNumThreads > 0) {
-        omp_set_num_threads(iNumThreads);
-    } else {
-        omp_set_num_threads(nb_max_thread);
-    }
+        if (iNumThreads > 0) {
+            omp_set_num_threads(iNumThreads);
+        } else {
+            omp_set_num_threads(nb_max_thread);
+        }
 
 #pragma omp parallel for schedule(dynamic) if (iNumThreads > 0) private(imageGray)
 #endif
+
         for (int i = 0; i < static_cast<int>(sfm_data.views.size()); ++i) {
-            Views::const_iterator iterViews = sfm_data.views.begin();
+            auto iterViews = sfm_data.views.begin();
             std::advance(iterViews, i);
             const View *view = iterViews->second.get();
             const std::string
@@ -217,23 +225,22 @@ int computeFeatures() {
 
                 //
                 // Look if there is an occlusion feature mask
-                //
                 Image<unsigned char> *mask = nullptr; // The mask is null by default
 
-                const std::string
-                        mask_filename_local =
-                        stlplus::create_filespec(sfm_data.s_root_path,
-                                                 stlplus::basename_part(sView_filename) + "_mask", "png"),
-                        mask_filename_global =
-                        stlplus::create_filespec(sfm_data.s_root_path, "mask", "png");
+                const std::string mask_filename_local = stlplus::create_filespec(
+                        sfm_data.s_root_path,
+                        stlplus::basename_part(sView_filename) + "_mask",
+                        "png"
+                );
+                const std::string mask_filename_global
+                        = stlplus::create_filespec(sfm_data.s_root_path, "mask", "png");
 
                 Image<unsigned char> imageMask;
                 // Try to read the local mask
                 if (stlplus::file_exists(mask_filename_local)) {
                     if (!ReadImage(mask_filename_local.c_str(), &imageMask)) {
                         OPENMVG_LOG_ERROR
-                        << "Invalid mask: " << mask_filename_local << ';'
-                        << "Stopping feature extraction.";
+                        << "Invalid mask: " << mask_filename_local << ';' << "Stopping feature extraction.";
                         preemptive_exit = true;
                         continue;
                     }
@@ -245,8 +252,7 @@ int computeFeatures() {
                     if (stlplus::file_exists(mask_filename_global)) {
                         if (!ReadImage(mask_filename_global.c_str(), &imageMask)) {
                             OPENMVG_LOG_ERROR
-                            << "Invalid mask: " << mask_filename_global << ';'
-                            << "Stopping feature extraction.";
+                            << "Invalid mask: " << mask_filename_global << ';' << "Stopping feature extraction.";
                             preemptive_exit = true;
                             continue;
                         }
@@ -260,8 +266,7 @@ int computeFeatures() {
                 auto regions = image_describer->Describe(imageGray, mask);
                 if (regions && !image_describer->Save(regions.get(), sFeat, sDesc)) {
                     OPENMVG_LOG_ERROR
-                    << "Cannot save regions for image: " << sView_filename << ';'
-                    << "Stopping feature extraction.";
+                    << "Cannot save regions for image: " << sView_filename << ';' << "Stopping feature extraction.";
                     preemptive_exit = true;
                     continue;
                 }

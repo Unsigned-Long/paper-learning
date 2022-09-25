@@ -48,15 +48,14 @@ int pairGenerator() {
                      << "--output_file      : " << sOutputPairsFilename << "\n"
                      << "Optional parameters\n"
                      << "--pair_mode        : " << sPairMode << "\n"
-                     << "--contiguous_count : " << iContiguousCount << "\n"
-                     << std::endl;
+                     << "--contiguous_count : " << iContiguousCount << "\n";
 
     if (sSfMDataFilename.empty()) {
-        std::cerr << "[Error] Input file not set." << std::endl;
+        OPENMVG_LOG_ERROR << "[Error] Input file not set.";
         exit(EXIT_FAILURE);
     }
     if (sOutputPairsFilename.empty()) {
-        std::cerr << "[Error] Output file not set." << std::endl;
+        OPENMVG_LOG_ERROR << "[Error] Output file not set.";
         exit(EXIT_FAILURE);
     }
 
@@ -65,7 +64,7 @@ int pairGenerator() {
         pairMode = PAIR_EXHAUSTIVE;
     } else if (sPairMode == "CONTIGUOUS") {
         if (iContiguousCount == -1) {
-            std::cerr << "[Error] Contiguous pair mode selected but contiguous_count not set." << std::endl;
+            OPENMVG_LOG_ERROR << "[Error] Contiguous pair mode selected but contiguous_count not set.";
             exit(EXIT_FAILURE);
         }
 
@@ -73,17 +72,17 @@ int pairGenerator() {
     }
 
     // 1. Load SfM data scene
-    std::cout << "Loading scene.";
+    OPENMVG_LOG_INFO << "Loading scene.";
     SfM_Data sfm_data;
     if (!Load(sfm_data, sSfMDataFilename, ESfM_Data(VIEWS | INTRINSICS))) {
-        std::cerr << std::endl
-                  << "The input SfM_Data file \"" << sSfMDataFilename << "\" cannot be read." << std::endl;
+        OPENMVG_LOG_ERROR << std::endl
+                          << "The input SfM_Data file \"" << sSfMDataFilename << "\" cannot be read.";
         exit(EXIT_FAILURE);
     }
     const size_t NImage = sfm_data.GetViews().size();
 
     // 2. Compute pairs
-    std::cout << "Computing pairs." << std::endl;
+    OPENMVG_LOG_INFO << "Computing pairs.";
     Pair_Set pairs;
     switch (pairMode) {
         case PAIR_EXHAUSTIVE: {
@@ -95,15 +94,15 @@ int pairGenerator() {
             break;
         }
         default: {
-            std::cerr << "Unknown pair mode" << std::endl;
+            OPENMVG_LOG_ERROR << "Unknown pair mode";
             exit(EXIT_FAILURE);
         }
     }
 
     // 3. Save pairs
-    std::cout << "Saving pairs." << std::endl;
+    OPENMVG_LOG_INFO << "Saving pairs.";
     if (!savePairs(sOutputPairsFilename, pairs)) {
-        std::cerr << "Failed to save pairs to file: \"" << sOutputPairsFilename << "\"" << std::endl;
+        OPENMVG_LOG_ERROR << "Failed to save pairs to file: \"" << sOutputPairsFilename << "\"";
         exit(EXIT_FAILURE);
     }
 

@@ -60,17 +60,12 @@ enum class ESfMEngine {
     GLOBAL
 };
 
-bool StringToEnum
-        (
-                const std::string &str,
-                ESfMEngine &sfm_engine
-        ) {
-    const std::map<std::string, ESfMEngine> string_to_enum_mapping =
-            {
-                    {"INCREMENTAL",   ESfMEngine::INCREMENTAL},
-                    {"INCREMENTALV2", ESfMEngine::INCREMENTALV2},
-                    {"GLOBAL",        ESfMEngine::GLOBAL},
-            };
+bool StringToEnum(const std::string &str, ESfMEngine &sfm_engine) {
+    const std::map<std::string, ESfMEngine> string_to_enum_mapping = {
+            {"INCREMENTAL",   ESfMEngine::INCREMENTAL},
+            {"INCREMENTALV2", ESfMEngine::INCREMENTALV2},
+            {"GLOBAL",        ESfMEngine::GLOBAL},
+    };
     const auto it = string_to_enum_mapping.find(str);
     if (it == string_to_enum_mapping.end())
         return false;
@@ -78,18 +73,13 @@ bool StringToEnum
     return true;
 }
 
-bool StringToEnum
-        (
-                const std::string &str,
-                ESfMSceneInitializer &scene_initializer
-        ) {
-    const std::map<std::string, ESfMSceneInitializer> string_to_enum_mapping =
-            {
-                    {"EXISTING_POSE", ESfMSceneInitializer::INITIALIZE_EXISTING_POSES},
-                    {"MAX_PAIR",      ESfMSceneInitializer::INITIALIZE_MAX_PAIR},
-                    {"AUTO_PAIR",     ESfMSceneInitializer::INITIALIZE_AUTO_PAIR},
-                    {"STELLAR",       ESfMSceneInitializer::INITIALIZE_STELLAR},
-            };
+bool StringToEnum(const std::string &str, ESfMSceneInitializer &scene_initializer) {
+    const std::map<std::string, ESfMSceneInitializer> string_to_enum_mapping = {
+            {"EXISTING_POSE", ESfMSceneInitializer::INITIALIZE_EXISTING_POSES},
+            {"MAX_PAIR",      ESfMSceneInitializer::INITIALIZE_MAX_PAIR},
+            {"AUTO_PAIR",     ESfMSceneInitializer::INITIALIZE_AUTO_PAIR},
+            {"STELLAR",       ESfMSceneInitializer::INITIALIZE_STELLAR},
+    };
     const auto it = string_to_enum_mapping.find(str);
     if (it == string_to_enum_mapping.end())
         return false;
@@ -98,10 +88,9 @@ bool StringToEnum
 }
 
 /// From 2 given image filenames, find the two corresponding index in the View list
-bool computeIndexFromImageNames(
-        const SfM_Data &sfm_data,
-        const std::pair<std::string, std::string> &initialPairName,
-        Pair &initialPairIndex) {
+bool computeIndexFromImageNames(const SfM_Data &sfm_data,
+                                const std::pair<std::string, std::string> &initialPairName,
+                                Pair &initialPairIndex) {
     if (initialPairName.first == initialPairName.second) {
         OPENMVG_LOG_ERROR << "Invalid image names. You cannot use the same image to initialize a pair.";
         return false;
@@ -110,8 +99,7 @@ bool computeIndexFromImageNames(
     initialPairIndex = {UndefinedIndexT, UndefinedIndexT};
 
     /// List views filenames and find the one that correspond to the user ones:
-    for (Views::const_iterator it = sfm_data.GetViews().begin();
-         it != sfm_data.GetViews().end(); ++it) {
+    for (Views::const_iterator it = sfm_data.GetViews().begin(); it != sfm_data.GetViews().end(); ++it) {
         const View *v = it->second.get();
         const std::string filename = stlplus::filename_part(v->s_Img_path);
         if (filename == initialPairName.first) {
@@ -272,14 +260,12 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
     }
     // Matches reading
     std::shared_ptr<Matches_Provider> matches_provider = std::make_shared<Matches_Provider>();
-    if // Try to read the provided match filename or the default one (matches.f.txt/bin)
-            (
-            !(matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, filename_match)) ||
-              matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.f.txt")) ||
-              matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.f.bin")) ||
-              matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.e.txt")) ||
-              matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.e.bin")))
-            ) {
+    if (!(matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, filename_match)) ||
+          matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.f.txt")) ||
+          matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.f.bin")) ||
+          matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.e.txt")) ||
+          matches_provider->load(sfm_data, stlplus::create_filespec(directory_match, "matches.e.bin")))) {
+        // Try to read the provided match filename or the default one (matches.f.txt/bin)
         OPENMVG_LOG_ERROR << "Cannot load the match file.";
         return EXIT_FAILURE;
     }
@@ -291,19 +277,25 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
             return EXIT_FAILURE;
             break;
         case ESfMSceneInitializer::INITIALIZE_MAX_PAIR:
-            scene_initializer.reset(new SfMSceneInitializerMaxPair(sfm_data,
-                                                                   feats_provider.get(),
-                                                                   matches_provider.get()));
+            scene_initializer = std::make_unique<SfMSceneInitializerMaxPair>(
+                    sfm_data,
+                    feats_provider.get(),
+                    matches_provider.get()
+            );
             break;
         case ESfMSceneInitializer::INITIALIZE_EXISTING_POSES:
-            scene_initializer.reset(new SfMSceneInitializer(sfm_data,
-                                                            feats_provider.get(),
-                                                            matches_provider.get()));
+            scene_initializer = std::make_unique<SfMSceneInitializer>(
+                    sfm_data,
+                    feats_provider.get(),
+                    matches_provider.get()
+            );
             break;
         case ESfMSceneInitializer::INITIALIZE_STELLAR:
-            scene_initializer.reset(new SfMSceneInitializerStellar(sfm_data,
-                                                                   feats_provider.get(),
-                                                                   matches_provider.get()));
+            scene_initializer = std::make_unique<SfMSceneInitializerStellar>(
+                    sfm_data,
+                    feats_provider.get(),
+                    matches_provider.get()
+            );
             break;
         default:
             OPENMVG_LOG_ERROR << "Unknown SFM Scene initializer method";
@@ -316,11 +308,11 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
 
     switch (sfm_engine_type) {
         case ESfMEngine::INCREMENTAL: {
-            SequentialSfMReconstructionEngine *engine =
-                    new SequentialSfMReconstructionEngine(
-                            sfm_data,
-                            directory_output,
-                            stlplus::create_filespec(directory_output, "Reconstruction_Report.html"));
+            auto *engine = new SequentialSfMReconstructionEngine(
+                    sfm_data,
+                    directory_output,
+                    stlplus::create_filespec(directory_output, "Reconstruction_Report.html")
+            );
 
             // Configuration:
             engine->SetFeaturesProvider(feats_provider.get());
@@ -347,12 +339,12 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
         }
             break;
         case ESfMEngine::INCREMENTALV2: {
-            SequentialSfMReconstructionEngine2 *engine =
-                    new SequentialSfMReconstructionEngine2(
-                            scene_initializer.get(),
-                            sfm_data,
-                            directory_output,
-                            stlplus::create_filespec(directory_output, "Reconstruction_Report.html"));
+            auto *engine = new SequentialSfMReconstructionEngine2(
+                    scene_initializer.get(),
+                    sfm_data,
+                    directory_output,
+                    stlplus::create_filespec(directory_output, "Reconstruction_Report.html")
+            );
 
             // Configuration:
             engine->SetFeaturesProvider(feats_provider.get());
@@ -369,11 +361,11 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
         }
             break;
         case ESfMEngine::GLOBAL: {
-            GlobalSfMReconstructionEngine_RelativeMotions *engine =
-                    new GlobalSfMReconstructionEngine_RelativeMotions(
-                            sfm_data,
-                            directory_output,
-                            stlplus::create_filespec(directory_output, "Reconstruction_Report.html"));
+            auto *engine = new GlobalSfMReconstructionEngine_RelativeMotions(
+                    sfm_data,
+                    directory_output,
+                    stlplus::create_filespec(directory_output, "Reconstruction_Report.html")
+            );
 
             // Configuration:
             engine->SetFeaturesProvider(feats_provider.get());
@@ -416,13 +408,17 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
 
         //-- Export to disk computed scene (data & viewable results)
         OPENMVG_LOG_INFO << "...Export SfM_Data to disk.";
-        Save(sfm_engine->Get_SfM_Data(),
-             stlplus::create_filespec(directory_output, "sfm_data", ".bin"),
-             ESfM_Data(ALL));
+        Save(
+                sfm_engine->Get_SfM_Data(),
+                stlplus::create_filespec(directory_output, "sfm_data", ".bin"),
+                ESfM_Data(ALL)
+        );
 
-        Save(sfm_engine->Get_SfM_Data(),
-             stlplus::create_filespec(directory_output, "cloud_and_poses", ".ply"),
-             ESfM_Data(ALL));
+        Save(
+                sfm_engine->Get_SfM_Data(),
+                stlplus::create_filespec(directory_output, "cloud_and_poses", ".ply"),
+                ESfM_Data(ALL)
+        );
 
         return EXIT_SUCCESS;
     }

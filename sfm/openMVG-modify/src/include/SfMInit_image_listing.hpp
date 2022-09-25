@@ -55,29 +55,26 @@ bool checkIntrinsicStringValidity(const std::string &Kmatrix, double &focal, dou
     }
     // Check that all K matrix value are valid numbers
     for (size_t i = 0; i < vec_str.size(); ++i) {
-        double readvalue = 0.0;
+        double readValue = 0.0;
         std::stringstream ss;
         ss.str(vec_str[i]);
-        if (!(ss >> readvalue)) {
+        if (!(ss >> readValue)) {
             OPENMVG_LOG_ERROR << "\n Used an invalid not a number character";
             return false;
         }
-        if (i == 0) focal = readvalue;
-        if (i == 2) ppx = readvalue;
-        if (i == 5) ppy = readvalue;
+        if (i == 0) focal = readValue;
+        if (i == 2) ppx = readValue;
+        if (i == 5) ppy = readValue;
     }
     return true;
 }
 
-bool getGPS
-        (
-                const std::string &filename,
-                const int &GPS_to_XYZ_method,
-                Vec3 &pose_center
-        ) {
+bool getGPS(const std::string &filename,
+            const int &GPS_to_XYZ_method,
+            Vec3 &pose_center) {
     std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
     if (exifReader) {
-        // Try to parse EXIF metada & check existence of EXIF data
+        // Try to parse EXIF metadata & check existence of EXIF data
         if (exifReader->open(filename) && exifReader->doesHaveExifInfo()) {
             // Check existence of GPS coordinates
             double latitude, longitude, altitude;
@@ -103,10 +100,7 @@ bool getGPS
 
 
 /// Check string of prior weights
-std::pair<bool, Vec3> checkPriorWeightsString
-        (
-                const std::string &sWeights
-        ) {
+std::pair<bool, Vec3> checkPriorWeightsString(const std::string &sWeights) {
     std::pair<bool, Vec3> val(true, Vec3::Zero());
     std::vector<std::string> vec_str;
     stl::split(sWeights, ';', vec_str);
@@ -116,14 +110,14 @@ std::pair<bool, Vec3> checkPriorWeightsString
     }
     // Check that all weight values are valid numbers
     for (size_t i = 0; i < vec_str.size(); ++i) {
-        double readvalue = 0.0;
+        double readValue = 0.0;
         std::stringstream ss;
         ss.str(vec_str[i]);
-        if (!(ss >> readvalue)) {
+        if (!(ss >> readValue)) {
             OPENMVG_LOG_ERROR << "Used an invalid not a number character in local frame origin";
             val.first = false;
         }
-        val.second[i] = readvalue;
+        val.second[i] = readValue;
     }
     return val;
 }
@@ -165,7 +159,7 @@ int fMInitImageListing() {
     // Expected properties for each image
     double width = -1, height = -1, focal = -1, ppx = -1, ppy = -1;
 
-    const EINTRINSIC e_User_camera_model = EINTRINSIC(i_User_camera_model);
+    const auto e_User_camera_model = EINTRINSIC(i_User_camera_model);
 
     if (!stlplus::folder_exists(sImageDir)) {
         OPENMVG_LOG_ERROR << "The input directory doesn't exist";
@@ -184,8 +178,7 @@ int fMInitImageListing() {
         }
     }
 
-    if (sKmatrix.size() > 0 &&
-        !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy)) {
+    if (sKmatrix.size() > 0 && !checkIntrinsicStringValidity(sKmatrix, focal, ppx, ppy)) {
         OPENMVG_LOG_ERROR << "Invalid K matrix input";
         return EXIT_FAILURE;
     }
@@ -198,9 +191,8 @@ int fMInitImageListing() {
     std::vector<Datasheet> vec_database;
     if (!sfileDatabase.empty()) {
         if (!parseDatabase(sfileDatabase, vec_database)) {
-            OPENMVG_LOG_ERROR
-            << "Invalid input database: " << sfileDatabase
-            << ", please specify a valid file.";
+            OPENMVG_LOG_ERROR << "Invalid input database: " << sfileDatabase
+                              << ", please specify a valid file.";
             return EXIT_FAILURE;
         }
     }
@@ -221,9 +213,7 @@ int fMInitImageListing() {
 
     system::LoggerProgress my_progress_bar(vec_image.size(), "- Listing images -");
     std::ostringstream error_report_stream;
-    for (std::vector<std::string>::const_iterator iter_image = vec_image.begin();
-         iter_image != vec_image.end();
-         ++iter_image, ++my_progress_bar) {
+    for (auto iter_image = vec_image.begin(); iter_image != vec_image.end(); ++iter_image, ++my_progress_bar) {
         // Read meta data to fill camera parameter (w,h,focal,ppx,ppy) fields.
         width = height = ppx = ppy = focal = -1.0;
 
@@ -232,8 +222,7 @@ int fMInitImageListing() {
 
         // Test if the image format is supported:
         if (openMVG::image::GetFormat(sImageFilename.c_str()) == openMVG::image::Unknown) {
-            error_report_stream
-                    << sImFilenamePart << ": Unkown image file format." << "\n";
+            error_report_stream << sImFilenamePart << ": Unknown image file format." << "\n";
             continue; // image cannot be opened
         }
 
@@ -244,7 +233,7 @@ int fMInitImageListing() {
             continue;
         }
 
-        ImageHeader imgHeader;
+        ImageHeader imgHeader{};
         if (!openMVG::image::ReadImageHeader(sImageFilename.c_str(), &imgHeader))
             continue; // image cannot be read
 
@@ -268,10 +257,9 @@ int fMInitImageListing() {
             std::unique_ptr<Exif_IO> exifReader(new Exif_IO_EasyExif);
             exifReader->open(sImageFilename);
 
-            const bool bHaveValidExifMetadata =
-                    exifReader->doesHaveExifInfo()
-                    && !exifReader->getModel().empty()
-                    && !exifReader->getBrand().empty();
+            const bool bHaveValidExifMetadata = exifReader->doesHaveExifInfo()
+                                                && !exifReader->getModel().empty()
+                                                && !exifReader->getBrand().empty();
 
             if (bHaveValidExifMetadata) // If image contains meta data
             {
@@ -287,7 +275,7 @@ int fMInitImageListing() {
 
                     Datasheet datasheet;
                     if (getInfo(sCamModel, vec_database, datasheet)) {
-                        // The camera model was found in the database so we can compute it's approximated focal length
+                        // The camera model was found in the database, so we can compute it's approximated focal length
                         const double ccdw = datasheet.sensorSize_;
                         focal = std::max(width, height) * exifReader->getFocal() / ccdw;
                     } else {
@@ -381,29 +369,23 @@ int fMInitImageListing() {
 
     // Display saved warning & error messages if any.
     if (!error_report_stream.str().empty()) {
-        OPENMVG_LOG_WARNING
-        << "Warning & Error messages:\n"
-        << error_report_stream.str();
+        OPENMVG_LOG_WARNING << "Warning & Error messages:\n" << error_report_stream.str();
     }
 
-    // Group camera that share common properties if desired (leads to more faster & stable BA).
+    // Group camera that share common properties if desired (leads to faster & stable BA).
     if (b_Group_camera_model) {
         GroupSharedIntrinsics(sfm_data);
     }
 
     // Store SfM_Data views & intrinsic data
-    if (!Save(
-            sfm_data,
-            stlplus::create_filespec(sOutputDir, "sfm_data.json").c_str(),
-            ESfM_Data(VIEWS | INTRINSICS))) {
+    if (!Save(sfm_data, stlplus::create_filespec(sOutputDir, "sfm_data.json"), ESfM_Data(VIEWS | INTRINSICS))) {
         return EXIT_FAILURE;
     }
 
-    OPENMVG_LOG_INFO
-    << "SfMInit_ImageListing report:\n"
-    << "listed #File(s): " << vec_image.size() << "\n"
-    << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
-    << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size();
+    OPENMVG_LOG_INFO << "SfMInit_ImageListing report:\n"
+                     << "listed #File(s): " << vec_image.size() << "\n"
+                     << "usable #File(s) listed in sfm_data: " << sfm_data.GetViews().size() << "\n"
+                     << "usable #Intrinsic(s) listed in sfm_data: " << sfm_data.GetIntrinsics().size();
 
     return EXIT_SUCCESS;
 }

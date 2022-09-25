@@ -39,9 +39,8 @@ void GetCameraPositions(const SfM_Data &sfm_data, std::vector<Vec3> &vec_camPosi
 // Convert from a SfM_Data format to another
 int computeSfMDataColor() {
 
-    std::string
-            sSfM_Data_Filename_In = Config::outputDir + "/reconstruction_global/sfm_data.bin",
-            sOutputPLY_Out = Config::outputDir + "/reconstruction_global/colorized.ply";
+    std::string sSfM_Data_Filename_In = Config::outputDir + "/reconstruction_global/sfm_data.bin";
+    std::string sOutputPLY_Out = Config::outputDir + "/reconstruction_global/colorized.ply";
 
     if (sOutputPLY_Out.empty()) {
         OPENMVG_LOG_ERROR << "No output PLY filename specified.";

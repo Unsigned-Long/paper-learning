@@ -16,106 +16,91 @@
 #include <string>
 #include <vector>
 
-namespace openMVG{
-namespace plyHelper{
+namespace openMVG {
+    namespace plyHelper {
 
 /// Export 3D point vector to PLY format
-inline
-bool
-exportToPly
-(
-  const std::vector<Vec3> & vec_points,
-  const std::string & sFileName
-)
-{
-  std::ofstream outfile(sFileName.c_str());
-  if (!outfile)
-    return false;
+        inline bool exportToPly(const std::vector<Vec3> &vec_points,
+                                const std::string &sFileName) {
+            std::ofstream outfile(sFileName.c_str());
+            if (!outfile)
+                return false;
 
-  outfile << "ply"
-    << "\n" << "format ascii 1.0"
-    << "\n" << "element vertex " << vec_points.size()
-    << "\n" << "property double x"
-    << "\n" << "property double y"
-    << "\n" << "property double z"
-    << "\n" << "property uchar red"
-    << "\n" << "property uchar green"
-    << "\n" << "property uchar blue"
-    << "\n" << "end_header" << "\n";
+            outfile << "ply"
+                    << "\n" << "format ascii 1.0"
+                    << "\n" << "element vertex " << vec_points.size()
+                    << "\n" << "property double x"
+                    << "\n" << "property double y"
+                    << "\n" << "property double z"
+                    << "\n" << "property uchar red"
+                    << "\n" << "property uchar green"
+                    << "\n" << "property uchar blue"
+                    << "\n" << "end_header" << "\n";
 
-  outfile << std::fixed << std::setprecision (std::numeric_limits<double>::digits10 + 1);
+            outfile << std::fixed << std::setprecision(std::numeric_limits<double>::digits10 + 1);
 
-  for (size_t i=0; i < vec_points.size(); ++i)
-  {
-    outfile
-      << vec_points[i](0) << ' '
-      << vec_points[i](1) << ' '
-      << vec_points[i](2) << ' '
-      << "255 255 255" << "\n";
-  }
-  const bool bOk = outfile.good();
-  outfile.close();
-  return bOk;
-}
+            for (size_t i = 0; i < vec_points.size(); ++i) {
+                outfile << vec_points[i](0) << ' '
+                        << vec_points[i](1) << ' '
+                        << vec_points[i](2) << ' '
+                        << "255 255 255" << "\n";
+            }
+            const bool bOk = outfile.good();
+            outfile.close();
+            return bOk;
+        }
 
 /// Export 3D point vector and camera position to PLY format
-inline bool exportToPly
-(
-  const std::vector<Vec3> & vec_points,
-  const std::vector<Vec3> & vec_camPos,
-  const std::string & sFileName,
-  const std::vector<Vec3> * vec_coloredPoints = nullptr
-)
-{
-  std::ofstream outfile(sFileName.c_str());
-  if (!outfile)
-    return false;
+        inline bool exportToPly(const std::vector<Vec3> &vec_points,
+                                const std::vector<Vec3> &vec_camPos,
+                                const std::string &sFileName,
+                                const std::vector<Vec3> *vec_coloredPoints = nullptr) {
+            std::ofstream outfile(sFileName.c_str());
+            if (!outfile)
+                return false;
 
-  outfile << "ply"
-    << '\n' << "format ascii 1.0"
-    << '\n' << "element vertex " << vec_points.size()+vec_camPos.size()
-    << '\n' << "property double x"
-    << '\n' << "property double y"
-    << '\n' << "property double z"
-    << '\n' << "property uchar red"
-    << '\n' << "property uchar green"
-    << '\n' << "property uchar blue"
-    << '\n' << "end_header" << "\n";
+            outfile << "ply"
+                    << '\n' << "format ascii 1.0"
+                    << '\n' << "element vertex " << vec_points.size() + vec_camPos.size()
+                    << '\n' << "property double x"
+                    << '\n' << "property double y"
+                    << '\n' << "property double z"
+                    << '\n' << "property uchar red"
+                    << '\n' << "property uchar green"
+                    << '\n' << "property uchar blue"
+                    << '\n' << "end_header" << "\n";
 
-  outfile << std::fixed << std::setprecision (std::numeric_limits<double>::digits10 + 1);
+            outfile << std::fixed << std::setprecision(std::numeric_limits<double>::digits10 + 1);
 
-  for (size_t i=0; i < vec_points.size(); ++i)  {
-    if (vec_coloredPoints == nullptr)
-      outfile
-        << vec_points[i](0) << ' '
-        << vec_points[i](1) << ' '
-        << vec_points[i](2) << ' '
-        << "255 255 255\n";
-    else
-      outfile
-        << vec_points[i](0) << ' '
-        << vec_points[i](1) << ' '
-        << vec_points[i](2) << ' '
-        << static_cast<int>((*vec_coloredPoints)[i](0)) << ' '
-        << static_cast<int>((*vec_coloredPoints)[i](1)) << ' '
-        << static_cast<int>((*vec_coloredPoints)[i](2))
-        << "\n";
-  }
+            for (size_t i = 0; i < vec_points.size(); ++i) {
+                if (vec_coloredPoints == nullptr)
+                    outfile << vec_points[i](0) << ' '
+                            << vec_points[i](1) << ' '
+                            << vec_points[i](2) << ' '
+                            << "255 255 255\n";
+                else
+                    outfile << vec_points[i](0) << ' '
+                            << vec_points[i](1) << ' '
+                            << vec_points[i](2) << ' '
+                            << static_cast<int>((*vec_coloredPoints)[i](0)) << ' '
+                            << static_cast<int>((*vec_coloredPoints)[i](1)) << ' '
+                            << static_cast<int>((*vec_coloredPoints)[i](2))
+                            << "\n";
+            }
 
-  for (size_t i=0; i < vec_camPos.size(); ++i)  {
-    outfile
-      << vec_camPos[i](0) << ' '
-      << vec_camPos[i](1) << ' '
-      << vec_camPos[i](2) << ' '
-      << "0 255 0\n";
-  }
-  outfile.flush();
-  const bool bOk = outfile.good();
-  outfile.close();
-  return bOk;
-}
+            for (size_t i = 0; i < vec_camPos.size(); ++i) {
+                outfile << vec_camPos[i](0) << ' '
+                        << vec_camPos[i](1) << ' '
+                        << vec_camPos[i](2) << ' '
+                        << "0 255 0\n";
+            }
+            outfile.flush();
+            const bool bOk = outfile.good();
+            outfile.close();
+            return bOk;
+        }
 
-} // namespace plyHelper
+    } // namespace plyHelper
 } // namespace openMVG
 
 #endif // OPENMVG_SFM_PLY_HELPER_H

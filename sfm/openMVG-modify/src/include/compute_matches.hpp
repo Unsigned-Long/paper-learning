@@ -100,6 +100,7 @@ int computeMatches() {
     using namespace openMVG::features;
     const std::string sImage_describer = stlplus::create_filespec(sMatchesDirectory, "image_describer", "json");
     std::unique_ptr<Regions> regions_type = Init_region_type_from_file(sImage_describer);
+
     if (!regions_type) {
         OPENMVG_LOG_ERROR << "Invalid: " << sImage_describer << " regions type file.";
         return EXIT_FAILURE;
@@ -142,10 +143,11 @@ int computeMatches() {
     {
         vec_fileNames.reserve(sfm_data.GetViews().size());
         vec_imagesSize.reserve(sfm_data.GetViews().size());
-        for (const auto view_it: sfm_data.GetViews()) {
+        for (const auto &view_it: sfm_data.GetViews()) {
             const View *v = view_it.second.get();
-            vec_fileNames.emplace_back(stlplus::create_filespec(sfm_data.s_root_path,
-                                                                v->s_Img_path));
+            vec_fileNames.emplace_back(
+                    stlplus::create_filespec(sfm_data.s_root_path, v->s_Img_path)
+            );
             vec_imagesSize.emplace_back(v->ui_width, v->ui_height);
         }
     }
@@ -158,8 +160,7 @@ int computeMatches() {
             return EXIT_FAILURE;
         }
         OPENMVG_LOG_INFO
-        << "\t PREVIOUS RESULTS LOADED;"
-        << " #pair: " << map_PutativeMatches.size();
+        << "\t PREVIOUS RESULTS LOADED;" << " #pair: " << map_PutativeMatches.size();
     } else // Compute the putative matches
     {
         // Allocate the right Matcher according the Matching requested method
@@ -167,36 +168,36 @@ int computeMatches() {
         if (sNearestMatchingMethod == "AUTO") {
             if (regions_type->IsScalar()) {
                 OPENMVG_LOG_INFO << "Using FAST_CASCADE_HASHING_L2 matcher";
-                collectionMatcher.reset(new Cascade_Hashing_Matcher_Regions(fDistRatio));
+                collectionMatcher = std::make_unique<Cascade_Hashing_Matcher_Regions>(fDistRatio);
             } else if (regions_type->IsBinary()) {
                 OPENMVG_LOG_INFO << "Using HNSWHAMMING matcher";
-                collectionMatcher.reset(new Matcher_Regions(fDistRatio, HNSW_HAMMING));
+                collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, HNSW_HAMMING);
             }
         } else if (sNearestMatchingMethod == "BRUTEFORCEL2") {
             OPENMVG_LOG_INFO << "Using BRUTE_FORCE_L2 matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, BRUTE_FORCE_L2));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, BRUTE_FORCE_L2);
         } else if (sNearestMatchingMethod == "BRUTEFORCEHAMMING") {
             OPENMVG_LOG_INFO << "Using BRUTE_FORCE_HAMMING matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, BRUTE_FORCE_HAMMING));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, BRUTE_FORCE_HAMMING);
         } else if (sNearestMatchingMethod == "HNSWL2") {
             OPENMVG_LOG_INFO << "Using HNSWL2 matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, HNSW_L2));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, HNSW_L2);
         }
         if (sNearestMatchingMethod == "HNSWL1") {
             OPENMVG_LOG_INFO << "Using HNSWL1 matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, HNSW_L1));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, HNSW_L1);
         } else if (sNearestMatchingMethod == "HNSWHAMMING") {
             OPENMVG_LOG_INFO << "Using HNSWHAMMING matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, HNSW_HAMMING));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, HNSW_HAMMING);
         } else if (sNearestMatchingMethod == "ANNL2") {
             OPENMVG_LOG_INFO << "Using ANN_L2 matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, ANN_L2));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, ANN_L2);
         } else if (sNearestMatchingMethod == "CASCADEHASHINGL2") {
             OPENMVG_LOG_INFO << "Using CASCADE_HASHING_L2 matcher";
-            collectionMatcher.reset(new Matcher_Regions(fDistRatio, CASCADE_HASHING_L2));
+            collectionMatcher = std::make_unique<Matcher_Regions>(fDistRatio, CASCADE_HASHING_L2);
         } else if (sNearestMatchingMethod == "FASTCASCADEHASHINGL2") {
             OPENMVG_LOG_INFO << "Using FAST_CASCADE_HASHING_L2 matcher";
-            collectionMatcher.reset(new Cascade_Hashing_Matcher_Regions(fDistRatio));
+            collectionMatcher = std::make_unique<Cascade_Hashing_Matcher_Regions>(fDistRatio);
         }
         if (!collectionMatcher) {
             OPENMVG_LOG_ERROR << "Invalid Nearest Neighbor method: " << sNearestMatchingMethod;
@@ -223,20 +224,14 @@ int computeMatches() {
             //-- Export putative matches & pairs
             //---------------------------------------
             if (!Save(map_PutativeMatches, std::string(sOutputMatchesFilename))) {
-                OPENMVG_LOG_ERROR
-                << "Cannot save computed matches in: "
-                << sOutputMatchesFilename;
+                OPENMVG_LOG_ERROR << "Cannot save computed matches in: " << sOutputMatchesFilename;
                 return EXIT_FAILURE;
             }
             // Save pairs
             const std::string sOutputPairFilename =
                     stlplus::create_filespec(sMatchesDirectory, "preemptive_pairs", "txt");
-            if (!savePairs(
-                    sOutputPairFilename,
-                    getPairs(map_PutativeMatches))) {
-                OPENMVG_LOG_ERROR
-                << "Cannot save computed matches pairs in: "
-                << sOutputPairFilename;
+            if (!savePairs(sOutputPairFilename, getPairs(map_PutativeMatches))) {
+                OPENMVG_LOG_ERROR << "Cannot save computed matches pairs in: " << sOutputPairFilename;
                 return EXIT_FAILURE;
             }
         }
@@ -249,18 +244,25 @@ int computeMatches() {
     graph::getGraphStatistics(sfm_data.GetViews().size(), getPairs(map_PutativeMatches));
 
     //-- export putative matches Adjacency matrix
-    PairWiseMatchingToAdjacencyMatrixSVG(vec_fileNames.size(),
-                                         map_PutativeMatches,
-                                         stlplus::create_filespec(sMatchesDirectory, "PutativeAdjacencyMatrix", "svg"));
+    PairWiseMatchingToAdjacencyMatrixSVG(
+            vec_fileNames.size(),
+            map_PutativeMatches,
+            stlplus::create_filespec(sMatchesDirectory, "PutativeAdjacencyMatrix", "svg")
+    );
     //-- export view pair graph once putative graph matches has been computed
     {
         std::set<IndexT> set_ViewIds;
-        std::transform(sfm_data.GetViews().begin(), sfm_data.GetViews().end(),
-                       std::inserter(set_ViewIds, set_ViewIds.begin()), stl::RetrieveKey());
+        std::transform(
+                sfm_data.GetViews().begin(),
+                sfm_data.GetViews().end(),
+                std::inserter(set_ViewIds, set_ViewIds.begin()),
+                stl::RetrieveKey()
+        );
+
         graph::indexedGraph putativeGraph(set_ViewIds, getPairs(map_PutativeMatches));
         graph::exportToGraphvizData(
-                stlplus::create_filespec(sMatchesDirectory, "putative_matches"),
-                putativeGraph);
+                stlplus::create_filespec(sMatchesDirectory, "putative_matches"), putativeGraph
+        );
     }
 
     return EXIT_SUCCESS;
