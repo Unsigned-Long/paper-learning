@@ -41,9 +41,9 @@ void Config::loadConfig(const std::string &configFilePath) {
     Config::fileDatabasePath = doc["fileDatabasePath"].as<std::string>();
 
     auto SfMInitImageListing = doc["SfMInitImageListing"];
-    SfMInitImageListing::priorWeights =
-            SfMInitImageListing["priorWeights"].as<std::string>();
+    SfMInitImageListing::priorWeights = SfMInitImageListing["priorWeights"].as<std::string>();
     SfMInitImageListing::cameraModel = SfMInitImageListing["cameraModel"].as<int>();
+    SfMInitImageListing::focalPixels = SfMInitImageListing["focalPixels"].as<double>();
     SfMInitImageListing::GPS_XYZ_Method = SfMInitImageListing["GPS_XYZ_Method"].as<int>();
     SfMInitImageListing::usePosePrior = SfMInitImageListing["usePosePrior"].as<bool>();
     SfMInitImageListing::groupCameraModel = SfMInitImageListing["groupCameraModel"].as<bool>();
