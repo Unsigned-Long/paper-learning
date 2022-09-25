@@ -647,7 +647,7 @@ namespace sfmtoylib {
             cout << "Saving result reconstruction with prefix " << prefix << endl;
         }
 
-        ofstream ofs(prefix + "_points.ply");
+        ofstream ofs(prefix + "SfM_toy_Library_Points.ply");
 
         //write PLY header
         ofs << "ply                 " << endl <<
@@ -679,7 +679,7 @@ namespace sfmtoylib {
 
         ofs.close();
 
-        ofstream ofsc(prefix + "_cameras.ply");
+        ofstream ofsc(prefix + "SfM_toy_Library_Cameras.ply");
 
         //write PLY header
         ofsc << "ply                 " << endl <<
@@ -696,11 +696,6 @@ namespace sfmtoylib {
 
         //save cameras polygons..
         for (const auto &pose: mCameraPoses) {
-            Point3d c(pose(0, 3), pose(1, 3), pose(2, 3));
-            Point3d cx = c + Point3d(pose(0, 0), pose(1, 0), pose(2, 0)) * 0.2;
-            Point3d cy = c + Point3d(pose(0, 1), pose(1, 1), pose(2, 1)) * 0.2;
-            Point3d cz = c + Point3d(pose(0, 2), pose(1, 2), pose(2, 2)) * 0.2;
-
             Eigen::Matrix<float, 3, 4> trans;
             cv::cv2eigen(pose, trans);
 

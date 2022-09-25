@@ -180,8 +180,10 @@ void visualization(const std::vector<std::pair<Eigen::Quaternionf, Eigen::Vector
 }
 
 int main(int argc, char **argv) {
-    auto cloud = Reader::readPoints("../output/colorized.ply");
-    auto cameras = Reader::readCameras("../output/_cameras.ply");
+//    auto cloud = Reader::readPoints("../output/SfM_toy_Library_Points.ply");
+//    auto cameras = Reader::readCameras("../output/SfM_toy_Library_Cameras.ply");
+    auto cloud = Reader::readPoints("../output/openMVG_Points.ply");
+    auto cameras = Reader::readCameras("../output/openMVG_Cameras.ply");
     visualization(cameras, cloud);
     return 0;
 }
