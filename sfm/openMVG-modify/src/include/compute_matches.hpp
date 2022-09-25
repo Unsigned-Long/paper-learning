@@ -5,14 +5,6 @@
 #ifndef SFM_COMPUTE_MATCHES_HPP
 #define SFM_COMPUTE_MATCHES_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2012, 2019 Pierre MOULON, Romuald Perrot.
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "openMVG/graph/graph.hpp"
 #include "openMVG/graph/graph_stats.hpp"
 #include "openMVG/matching/indMatch.hpp"

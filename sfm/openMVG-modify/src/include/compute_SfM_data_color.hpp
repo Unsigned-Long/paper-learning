@@ -5,14 +5,6 @@
 #ifndef SFM_COMPUTE_SFM_DATA_COLOR_HPP
 #define SFM_COMPUTE_SFM_DATA_COLOR_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2015 Pierre MOULON.
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "openMVG/sfm/sfm_data.hpp"
 #include "openMVG/sfm/sfm_data_io.hpp"
 #include "openMVG/sfm/sfm_data_colorization.hpp"
@@ -21,7 +13,6 @@
 
 #include "SfM_ply_helper.hpp"
 #include "third_party/cmdLine/cmdLine.h"
-
 
 using namespace openMVG;
 using namespace openMVG::sfm;

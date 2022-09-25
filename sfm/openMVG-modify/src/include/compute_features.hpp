@@ -5,14 +5,6 @@
 #ifndef SFM_COMPUTE_FEATURES_HPP
 #define SFM_COMPUTE_FEATURES_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2012, 2013 Pierre MOULON.
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 // The <cereal/archives> headers are special and must be included first.
 #include <cereal/archives/json.hpp>
 

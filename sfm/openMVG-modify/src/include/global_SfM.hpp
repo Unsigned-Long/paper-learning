@@ -5,14 +5,6 @@
 #ifndef SFM_GLOBAL_SFM_HPP
 #define SFM_GLOBAL_SFM_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2012, 2021 Pierre MOULON.
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "openMVG/cameras/Camera_Common.hpp"
 #include "openMVG/cameras/Cameras_Common_command_line_helper.hpp"
 
@@ -115,10 +107,6 @@ bool computeIndexFromImageNames(const SfM_Data &sfm_data,
 }
 
 int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
-    OPENMVG_LOG_INFO
-    << "\n-----------------------------------------------------------"
-    << "\n Structure from Motion:"
-    << "\n-----------------------------------------------------------";
     // Common options:
     std::string filename_sfm_data = Config::outputDir + "/matches/sfm_data.json";
     std::string directory_match;

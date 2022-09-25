@@ -5,14 +5,6 @@
 #ifndef SFM_PAIR_GENERATOR_HPP
 #define SFM_PAIR_GENERATOR_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2019 Romuald PERROT
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "openMVG/matching_image_collection/Pair_Builder.hpp"
 #include "openMVG/sfm/sfm_data.hpp"
 #include "openMVG/sfm/sfm_data_io.hpp"
@@ -25,7 +17,6 @@
 
 /**
  * @brief Current list of available pair mode
- *
  */
 enum EPairMode {
     PAIR_EXHAUSTIVE = 0, // Build every combination of image pairs

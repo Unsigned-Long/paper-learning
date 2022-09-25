@@ -5,14 +5,6 @@
 #ifndef SFM_SFMINIT_IMAGE_LISTING_HPP
 #define SFM_SFMINIT_IMAGE_LISTING_HPP
 
-// This file is part of OpenMVG, an Open Multiple View Geometry C++ library.
-
-// Copyright (c) 2012, 2013, 2015 Pierre MOULON.
-
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #include "openMVG/cameras/cameras.hpp"
 #include "openMVG/exif/exif_IO_EasyExif.hpp"
 #include "openMVG/exif/sensor_width_database/ParseDatabase.hpp"
