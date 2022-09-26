@@ -69,7 +69,7 @@ int computeFeatures() {
     std::string sFeaturePreset;
 
 #ifdef OPENMVG_USE_OPENMP
-    int iNumThreads = 0;
+    int iNumThreads = Config::ComputeFeatures::numThreads;
 #endif
 
     OPENMVG_LOG_INFO

@@ -18,6 +18,7 @@ bool Config::SfMInitImageListing::groupCameraModel = {};
 bool Config::ComputeFeatures::upRight = {};
 bool Config::ComputeFeatures::force = {};
 std::string Config::ComputeFeatures::imageDescriberMethod = {};
+ int Config::ComputeFeatures::numThreads={};
 
 std::string Config::PairGenerator::pairMode = {};
 int Config::PairGenerator::contiguousCount = {};
@@ -52,6 +53,7 @@ void Config::loadConfig(const std::string &configFilePath) {
     ComputeFeatures::upRight = ComputeFeatures["upRight"].as<bool>();
     ComputeFeatures::force = ComputeFeatures["force"].as<bool>();
     ComputeFeatures::imageDescriberMethod = ComputeFeatures["imageDescriberMethod"].as<std::string>();
+    ComputeFeatures::numThreads = ComputeFeatures["numThreads"].as<int>();
 
     auto PairGenerator = doc["PairGenerator"];
     PairGenerator::pairMode = PairGenerator["pairMode"].as<std::string>();

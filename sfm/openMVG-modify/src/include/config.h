@@ -24,6 +24,7 @@ struct Config {
         static bool upRight;
         static bool force;
         static std::string imageDescriberMethod;
+        static int numThreads;
     };
     struct PairGenerator {
         static std::string pairMode;
