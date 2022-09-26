@@ -4999,6 +4999,7 @@ Ricoh RDC-6000;6.4
 Ricoh RDC-7;7.11
 Ricoh RDC-i500;7.11
 Ricoh RDC-i700;7.11
+RICOH RICOH THETA S;6.17
 RICOH THETA S;6.17
 Ricoh Theta SC;6.2
 Ricoh Theta V;6.17
