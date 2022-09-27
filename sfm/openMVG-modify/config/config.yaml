@@ -1,9 +1,8 @@
-imgDir: "/home/csl/dataset/Image_datasets/360_dataset/360_Flat/images"
+imgDir: "/home/csl/dataset/rosbag-reader-ros1/EuRoC/cam0/images"
 outputDir: "../new_output"
 fileDatabasePath: "../config/sensor_width_camera_database.txt"
 
 SfMInitImageListing:
-  priorWeights: "1.0;1.0;1.0"
   # cameraModel choice:
   # PINHOLE_CAMERA_START(0)
   # PINHOLE_CAMERA(1) No distortion
@@ -12,18 +11,22 @@ SfMInitImageListing:
   # PINHOLE_CAMERA_BROWN(4) radial distortion K1,K2,K3, tangential distortion T1,T2
   # PINHOLE_CAMERA_FISHEYE(5) a simple Fish-eye distortion model with 4 distortion coefficients
   # CAMERA_SPHERICAL(7)
-  cameraModel: 7
-  # GPS_XYZ_Method choice:
-  # ECEF(0) or UTM(1) XYZ position to the GPS position array
-  GPS_XYZ_Method: 0
-  usePosePrior: false
+  cameraModel: 3
   # the focal length (pixels)
   # if the camera is contained int the file database, make it -1.0.
   # otherwise, you should submit an approximate focal length by using: Max(image<Width, Height>) * 1.2
-  focalPixels: -1.0
+  focalPixels: 458.654
   #  true: view can share some camera intrinsic parameters
   # false: each view have its own camera intrinsic parameters
   groupCameraModel: true
+  # GPS_XYZ_Method choice:
+  # ECEF(0) or UTM(1) XYZ position to the GPS position array
+  GPS_XYZ_Method: 0
+  # Use pose prior if GPS EXIF pose is available
+  usePosePrior: false
+  # "x;y;z;" of weights for each dimension of the prior (default: 1.0)
+  priorWeights: "1.0;1.0;1.0"
+
 
 ComputeFeatures:
   # use upright feature
@@ -31,9 +34,12 @@ ComputeFeatures:
   # force to recompute data
   force: false
   # imageDescriberMethod choice:
-  # SIFT SIFT_ANATOMY AKAZE_FLOAT AKAZE_MLDB
+  # SIFT: default
+  # SIFT_ANATOMY
+  # AKAZE_FLOAT: AKAZE with floating point descriptors
+  # AKAZE_MLDB: AKAZE with binary descriptors
   imageDescriberMethod: "SIFT"
-  # openmp threads number
+  # number of parallel computations
   numThreads: 4
 
 PairGenerator:
@@ -48,11 +54,19 @@ PairGenerator:
   contiguousCount: -1
 
 ComputeMatches:
-  # distance ratio to discard non meaningful matches
+  # distance ratio to discard non meaningful matches, 0.8: (default)
   distRatio: 0.8
   # nearestMatchingMethod choice:
-  # AUTO BRUTEFORCEL2 BRUTEFORCEHAMMING HNSWL2 HNSWL1
-  # HNSWHAMMING ANNL2 CASCADEHASHINGL2 FASTCASCADEHASHINGL2
+  # AUTO: auto choice from regions type
+  # For Scalar based regions descriptor:
+  # BRUTEFORCEL2: L2 BruteForce matching
+  # BRUTEFORCEHAMMING: BruteForce Hamming matching
+  # HNSWL2: L2 Approximate Matching with Hierarchical Navigable Small World graphs
+  # HNSWL1: L1 Approximate Matching with Hierarchical Navigable Small World graphs tailored for quantized and histogram based descriptors
+  # HNSWHAMMING: Hamming Approximate Matching with Hierarchical Navigable Small World graphs
+  # ANNL2: L2 Approximate Nearest Neighbor matching
+  # CASCADEHASHINGL2: L2 Cascade Hashing matching
+  # FASTCASCADEHASHINGL2: L2 Cascade Hashing with precomputed hashed regions(faster than CASCADEHASHINGL2 but use more memory)
   nearestMatchingMethod: "AUTO"
   # force to recompute data
   force: false
@@ -65,7 +79,7 @@ GeometricFilter:
   # a: essential matrix with an angular parametrization
   # u: upright essential matrix with an angular parametrization
   # o: orthographic essential matrix
-  geometricModel: "e"
+  geometricModel: "f"
   # force to recompute data
   force: false
   # use the found model to improve the pairwise correspondences.
