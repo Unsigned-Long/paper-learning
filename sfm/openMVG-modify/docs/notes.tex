@@ -1,0 +1,160 @@
+\documentclass[12pt, twocolumn]{article}
+
+% 引入相关的包
+\usepackage{amsmath, listings, fontspec, geometry, graphicx, ctex, color, subfigure}
+
+% 设定页面的尺寸和比例
+\geometry{left = 1.5cm, right = 1.5cm, top = 1.5cm, bottom = 1.5cm}
+
+% 设定两栏之间的间距
+\setlength\columnsep{1cm}
+
+% 设定字体，为代码的插入作准备
+\newfontfamily\ubuntu{Ubuntu Mono}
+
+% 头部信息
+\title{\normf{这是标题}}
+\author{\normf{陈烁龙}}
+\date{\normf{\today}}
+
+% 代码块的风格设定
+\lstset{
+	language=C++,
+	basicstyle=\scriptsize\ubuntu,
+	keywordstyle=\textbf,
+	stringstyle=\itshape,
+	commentstyle=\itshape,
+	numberstyle=\scriptsize\ubuntu,
+	showstringspaces=false,
+	numbers=left,
+	numbersep=8pt,
+	tabsize=2,
+	frame=single,
+	framerule=1pt,
+	columns=fullflexible,
+	breaklines,
+	frame=shadowbox, 
+	backgroundcolor=\color[rgb]{0.97,0.97,0.97}
+}
+
+% 字体族的定义
+\newcommand{\normf}{\kaishu}
+\newcommand{\boldf}{\heiti}
+\newcommand\keywords[1]{\boldf{关键词：} \normf #1}
+
+\begin{document}
+	
+	% 插入头部信息
+	\maketitle
+	% 换页
+	\thispagestyle{empty}
+	\clearpage
+	
+	% 插入目录、图、表并换页
+	\tableofcontents
+	\listoffigures
+	\listoftables
+	\setcounter{page}{1}
+	% 罗马字母形式的页码
+	\pagenumbering{roman}
+	\clearpage
+	% 从该页开始计数
+	\setcounter{page}{1}
+	% 阿拉伯数字形式的页码
+	\pagenumbering{arabic}
+
+	
+	\section{\normf{OpenMVG相机位姿}}
+	\normf
+	\subsection{\normf{相机位姿表示}}
+	在OpenMVG库中，相机的位姿是通过结构体$Pose3$来表示的，其由两个成员构成：表示位置的$center$和表示姿态的$rotation$，但是代码里并没有说明其位姿转换的方向(矩阵的含义)。	
+	
+	事实上，$center$等同于$^{W}\boldsymbol{p}_C$，$rotation$等同于$^{C}_{W}\boldsymbol{R}$，有：
+	\begin{equation*}
+		{^{C}\boldsymbol{p}_i}={^{C}_{W}\boldsymbol{R}}({^{W}\boldsymbol{p}_i}-{^{W}\boldsymbol{p}_C})
+	\end{equation*}	
+	即：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+				{^{C}\boldsymbol{p}_i}&={^{C}_{W}\boldsymbol{R}}{^{W}\boldsymbol{p}_i}+\boldsymbol{t}\\
+				\boldsymbol{t}&=-{^{C}_{W}\boldsymbol{R}}{^{W}\boldsymbol{p}_C}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}	
+	换句话说，我们可以通过$\left[ {^{C}_{W}\boldsymbol{R}}|\boldsymbol{t} \right] $将世界坐标系下的点投影到相机坐标系下。其逆变换为：
+	\begin{equation*}
+		\begin{cases}
+			\begin{aligned}
+				{^{C}_{W}\boldsymbol{R}}^{-1}{^{C}\boldsymbol{p}_i}-{^{C}_{W}\boldsymbol{R}}^{-1}\boldsymbol{t}&={^{W}\boldsymbol{p}_i}\\
+				{^{C}_{W}\boldsymbol{R}}^{-1}({^{C}\boldsymbol{p}_i}-\boldsymbol{t})&={^{W}\boldsymbol{p}_i}
+			\end{aligned}
+		\end{cases}
+	\end{equation*}
+	\subsection{\normf{复合位姿}}
+	另外，复合两个位姿：
+	\begin{equation*}
+		{^{C_i}_{C_j}\boldsymbol{T}}=\begin{bmatrix}
+			{^{C_i}_{C_j}\boldsymbol{R}}&-{^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}\boldsymbol{p}_{C_i}}\\
+			\boldsymbol{0}_{1\times 3}&1
+		\end{bmatrix}
+	\end{equation*}
+	\begin{equation*}
+	{^{C_j}_{W}\boldsymbol{T}}=\begin{bmatrix}
+		{^{C_j}_{W}\boldsymbol{R}}&-{^{C_j}_{W}\boldsymbol{R}}{^{W}\boldsymbol{p}_{C_j}}\\
+		\boldsymbol{0}_{1\times 3}&1
+	\end{bmatrix}
+	\end{equation*}
+	\begin{equation*}
+	{^{C_i}_{C_j}\boldsymbol{T}}{^{C_j}_{W}\boldsymbol{T}}=\begin{bmatrix}
+		{^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}_{W}\boldsymbol{R}}&-{^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}_{W}\boldsymbol{R}}{^{W}\boldsymbol{p}_{C_j}}-{^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}\boldsymbol{p}_{C_i}}\\
+		\boldsymbol{0}_{1\times 3}&1
+	\end{bmatrix}
+	\end{equation*}
+	\begin{equation*}
+	\begin{cases}
+		\begin{aligned}
+			{^{C_i}_{W}\boldsymbol{R}}&={^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}_{W}\boldsymbol{R}}\\
+			{^{C_i}_{W}\boldsymbol{R}}^{-1}&={^{W}_{C_j}\boldsymbol{R}}{^{C_j}_{C_i}\boldsymbol{R}}\\
+			^{W}\boldsymbol{p}_{C_i}&={^{C_i}_{W}\boldsymbol{R}}^{-1}({^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}_{W}\boldsymbol{R}}{^{W}\boldsymbol{p}_{C_j}}+{^{C_i}_{C_j}\boldsymbol{R}}{^{C_j}\boldsymbol{p}_{C_i}})\\
+			&={^{W}\boldsymbol{p}_{C_j}}+{^{W}_{C_j}\boldsymbol{R}}{^{C_j}\boldsymbol{p}_{C_i}}\\
+			&={^{W}\boldsymbol{p}_{C_j}}+{^{C_j}_{W}\boldsymbol{R}^{-1}}{^{C_j}\boldsymbol{p}_{C_i}}
+		\end{aligned}
+	\end{cases}
+	\end{equation*}
+	这也就是下面代码块的含义了：
+		\begin{lstlisting}[label=code2,caption={\normf 位姿复合}]
+Pose3 operator * ( const Pose3& P ) const
+{
+		return {
+				rotation_ * P.rotation_,
+				P.center_ + P.rotation_.transpose() * center_
+		};
+}
+	\end{lstlisting}
+	
+	不过，这有什么含义呢？我们已知第$j$个坐标系相对于世界坐标系的位姿和第$j$个坐标系相对于第$i$个坐标系，那么，我们就可以复合得到第$i$个坐标系相对于世界坐标系的位姿。
+	
+	\subsection{\normf{归化参考坐标系}}
+	另外，由于使用$Ceres$库进行解算时，网是不受控的(BA算法会整体调整网结构)。所以一般没有相机的位姿和世界坐标系对齐。但是在V-SLAM中，我们又一般都以第一帧相机作为世界坐标系参考。所以再完成SfM结算后，我们需要将所有的数据(相机位姿，控制点，路标等)转到第一帧坐标系下。如果用$c$表示世界到相机的变换，那么：
+	\begin{equation*}
+		{^{C_i}_{C_0}\boldsymbol{T}}={^{C_i}_{W}\boldsymbol{T}}\times{^{W}_{C_0}\boldsymbol{T}}={^{C_i}_{W}\boldsymbol{T}}\times{^{C_0}_{W}\boldsymbol{T}^{-1}}
+	\end{equation*}
+	也就是说，我们需要在每一个相机的位姿基础上右乘一个参考相机位姿的逆。
+	对于路标而言：
+	\begin{equation*}
+		{^{C_0}\boldsymbol{p}_i}={^{C_0}_{W}\boldsymbol{T}}{^{W}\boldsymbol{p}_i}
+	\end{equation*}
+	也就是说，我们需要对路标左乘一个参考相机的位姿。
+	
+	好在上面的一切都已经有一个函数实现了，就是：
+			\begin{lstlisting}[label=code2,caption={\normf 位姿复合}]
+void ApplySimilarity
+(	const geometry::Similarity3 & sim,
+	SfM_Data & sfm_data,
+	bool transform_priors	);
+	\end{lstlisting}
+	你要将哪个相机作为参考系，只需要把这个相机的位子传到sim参数里就行了。
+	
+\end{document}
+

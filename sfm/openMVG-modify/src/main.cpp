@@ -49,6 +49,7 @@ int writeSfMData(const SfM_Data &sfmData) {
             if (sfmData.IsPoseAndIntrinsicDefined(view.second.get())) {
                 const geometry::Pose3 pose = sfmData.GetPoseOrDie(view.second.get());
 
+                // from world to camera
                 Eigen::Quaterniond q(pose.rotation());
                 Eigen::Vector3d t = pose.translation();
                 camsFile << q.x() << ' ' << q.y() << ' ' << q.z() << ' ' << q.w() << ' '
