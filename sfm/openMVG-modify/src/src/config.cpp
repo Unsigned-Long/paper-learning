@@ -14,11 +14,13 @@ int Config::SfMInitImageListing::GPS_XYZ_Method = {};
 bool Config::SfMInitImageListing::usePosePrior = {};
 double Config::SfMInitImageListing::focalPixels = {};
 bool Config::SfMInitImageListing::groupCameraModel = {};
+std::string Config::SfMInitImageListing::KMatrix = {};
+
 
 bool Config::ComputeFeatures::upRight = {};
 bool Config::ComputeFeatures::force = {};
 std::string Config::ComputeFeatures::imageDescriberMethod = {};
- int Config::ComputeFeatures::numThreads={};
+int Config::ComputeFeatures::numThreads = {};
 
 std::string Config::PairGenerator::pairMode = {};
 int Config::PairGenerator::contiguousCount = {};
@@ -48,6 +50,7 @@ void Config::loadConfig(const std::string &configFilePath) {
     SfMInitImageListing::GPS_XYZ_Method = SfMInitImageListing["GPS_XYZ_Method"].as<int>();
     SfMInitImageListing::usePosePrior = SfMInitImageListing["usePosePrior"].as<bool>();
     SfMInitImageListing::groupCameraModel = SfMInitImageListing["groupCameraModel"].as<bool>();
+    SfMInitImageListing::KMatrix = SfMInitImageListing["KMatrix"].as<std::string>();
 
     auto ComputeFeatures = doc["ComputeFeatures"];
     ComputeFeatures::upRight = ComputeFeatures["upRight"].as<bool>();

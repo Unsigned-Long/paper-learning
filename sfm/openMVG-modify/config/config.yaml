@@ -1,5 +1,5 @@
-imgDir: "/home/csl/dataset/rosbag-reader-ros1/EuRoC/cam0/images"
-outputDir: "../new_output"
+imgDir: "../img"
+outputDir: "../output"
 fileDatabasePath: "../config/sensor_width_camera_database.txt"
 
 SfMInitImageListing:
@@ -12,10 +12,13 @@ SfMInitImageListing:
   # PINHOLE_CAMERA_FISHEYE(5) a simple Fish-eye distortion model with 4 distortion coefficients
   # CAMERA_SPHERICAL(7)
   cameraModel: 3
+  # format: "f;0;ppx;0;f;ppy;0;0;1" default: empty
+  # if this is assigned, then the field 'focalPixels' doesn't matter
+  KMatrix: ""
   # the focal length (pixels)
   # if the camera is contained int the file database, make it -1.0.
   # otherwise, you should submit an approximate focal length by using: Max(image<Width, Height>) * 1.2
-  focalPixels: 458.654
+  focalPixels: -1
   #  true: view can share some camera intrinsic parameters
   # false: each view have its own camera intrinsic parameters
   groupCameraModel: true
@@ -79,7 +82,7 @@ GeometricFilter:
   # a: essential matrix with an angular parametrization
   # u: upright essential matrix with an angular parametrization
   # o: orthographic essential matrix
-  geometricModel: "f"
+  geometricModel: "e"
   # force to recompute data
   force: false
   # use the found model to improve the pairwise correspondences.

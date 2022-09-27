@@ -5,8 +5,10 @@
 #include "geometric_filter.hpp"
 #include "global_SfM.hpp"
 #include "pair_generator.hpp"
-#include "compute_SfM_data_color.hpp"
+#include "openMVG/sfm/sfm_data_transform.hpp"
+#include "openMVG/geometry/Similarity3.hpp"
 
+// user defined, just for convenient
 #define CALL_OPENMVG_FUNC(func)                                                         \
 OPENMVG_LOG_INFO <<"\n------------------------------------------------"                 \
                  <<"\n"<<std::string(#func)                                             \
@@ -20,7 +22,7 @@ if (func == EXIT_FAILURE) {                                                     
 int writeSfMData(const SfM_Data &sfmData) {
     // write pose data
     {
-        std::ofstream camsFile("../pose-points/openMVG_Cameras.ply", std::ios::out);
+        std::ofstream camsFile(Config::outputDir + "/openMVG_Cameras.ply", std::ios::out);
         if (!camsFile.is_open()) {
             OPENMVG_LOG_ERROR << "pose file open failed.";
             return EXIT_FAILURE;
@@ -57,7 +59,7 @@ int writeSfMData(const SfM_Data &sfmData) {
     }
     // write points data
     {
-        std::ofstream ptsFile("../pose-points/openMVG_Points.ply", std::ios::out);
+        std::ofstream ptsFile(Config::outputDir + "/openMVG_Points.ply", std::ios::out);
         if (!ptsFile.is_open()) {
             OPENMVG_LOG_ERROR << "control points file open failed.";
             return EXIT_FAILURE;
@@ -92,40 +94,40 @@ int writeSfMData(const SfM_Data &sfmData) {
     return EXIT_SUCCESS;
 }
 
+int alignToFirstCamera(SfM_Data &sfmData) {
+    Pose3 pose = (sfmData.poses[sfmData.GetViews().begin()->first]);
+    double scale = 1.0;
+    const geometry::Similarity3 sim(pose, scale);
+    openMVG::sfm::ApplySimilarity(sim, sfmData);
+    return EXIT_SUCCESS;
+}
+
 int main(int argc, char **argv) {
+    // load the config file (yaml)
     Config::loadConfig("../config/config.yaml");
 
+    // initialize the image list (e.g. the image's model, image path...)
     CALL_OPENMVG_FUNC(fMInitImageListing())
+    // compute the features for each picture
     CALL_OPENMVG_FUNC(computeFeatures())
+    // generate the pairs
     CALL_OPENMVG_FUNC(pairGenerator())
+    // compute the matches
     CALL_OPENMVG_FUNC(computeMatches())
+    // Geometric filtering of putative matches
     CALL_OPENMVG_FUNC(geometricFilter())
 
+    // structure from the motion
     std::unique_ptr<ReconstructionEngine> sfm_engine;
-
     CALL_OPENMVG_FUNC(globalSfM(sfm_engine))
-    CALL_OPENMVG_FUNC(computeSfMDataColor())
-
     auto sfmData = sfm_engine->Get_SfM_Data();
 
-    /**
-     * struct SfM_Data
-     * {
-     * /// Considered views
-     * Views views;
-     * /// Considered poses (indexed by view.id_pose)
-     * Poses poses;
-     * /// Considered camera intrinsics (indexed by view.id_intrinsic)
-     * Intrinsics intrinsics;
-     * /// Structure (3D points with their 2D observations)
-     * Landmarks structure;
-     * /// Controls points (stored as Landmarks (id_feat has no meaning here))
-     * Landmarks control_points;
-     *
-     * /// Root Views path
-     * std::string s_root_path;
-     * };
-     */
+    // align
+    CALL_OPENMVG_FUNC(alignToFirstCamera(sfmData))
+    // after here, you can use the info of the sfmData
+    // the structure of the sfmData is in the directory: docs/code_structure.drawio.png
+
+    // write (for testing and visualization)
     CALL_OPENMVG_FUNC(writeSfMData(sfmData))
 
     return EXIT_SUCCESS;

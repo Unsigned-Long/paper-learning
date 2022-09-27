@@ -142,8 +142,6 @@ int globalSfM(std::unique_ptr<ReconstructionEngine> &sfm_engine) {
     int rotation_averaging_method = int(ROTATION_AVERAGING_L2);
     int translation_averaging_method = int(TRANSLATION_AVERAGING_SOFTL1);
 
-    b_use_motion_priors = false;
-
     // Check validity of command line parameters:
     if (!isValid(static_cast<ETriangulationMethod>(triangulation_method))) {
         OPENMVG_LOG_ERROR << "Invalid triangulation method";

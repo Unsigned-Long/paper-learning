@@ -123,7 +123,8 @@ int fMInitImageListing() {
     std::string sImageDir = Config::imgDir;
     std::string sfileDatabase = Config::fileDatabasePath;
     std::string sOutputDir = Config::outputDir + "/matches";
-    std::string sKmatrix;
+    // "f;0;ppx;0;f;ppy;0;0;1"
+    std::string sKmatrix = Config::SfMInitImageListing::KMatrix;
 
     std::string sPriorWeights = Config::SfMInitImageListing::priorWeights;
     std::pair<bool, Vec3> prior_w_info(false, Vec3());

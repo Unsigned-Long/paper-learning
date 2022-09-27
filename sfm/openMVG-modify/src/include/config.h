@@ -19,6 +19,7 @@ struct Config {
         static bool usePosePrior;
         static double focalPixels;
         static bool groupCameraModel;
+        static std::string KMatrix;
     };
     struct ComputeFeatures {
         static bool upRight;
